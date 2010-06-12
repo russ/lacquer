@@ -1,6 +1,10 @@
 = lacquer
 
-Description goes here.
+Rails drop in for Varnish support.
+
+== TODO
+* Add DelayedJob/Resque support.
+* Add helpful install generators.
 
 == Note on Patches/Pull Requests
  
