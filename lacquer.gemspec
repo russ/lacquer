@@ -25,13 +25,17 @@ Gem::Specification.new do |s|
      "VERSION",
      "init.rb",
      "lacquer.gemspec",
+     "lib/generators/lacquer_generator.rb",
+     "lib/generators/templates/initializer.rb",
+     "lib/generators/templates/varnish.sample.vcl",
      "lib/lacquer.rb",
      "lib/lacquer/cache_utils.rb",
      "lib/lacquer/configuration.rb",
      "lib/lacquer/varnish_interface.rb",
      "rails/init.rb",
      "test/helper.rb",
-     "test/test_cache_utils.rb"
+     "test/test_cache_utils.rb",
+     "test/test_varnish_interface.rb"
   ]
   s.homepage = %q{http://github.com/russ/lacquer}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -40,7 +44,8 @@ Gem::Specification.new do |s|
   s.summary = %q{Rails drop in for Varnish support.}
   s.test_files = [
     "test/helper.rb",
-     "test/test_cache_utils.rb"
+     "test/test_cache_utils.rb",
+     "test/test_varnish_interface.rb"
   ]
 
   if s.respond_to? :specification_version then
