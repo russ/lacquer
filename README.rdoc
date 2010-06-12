@@ -2,9 +2,32 @@
 
 Rails drop in for Varnish support.
 
+== Install
+Basic installation
+
+  rails generate lacquer
+
+config/initializers/lacquer.rb
+
+  Lacquer.configure do |config|
+    config.enable_cache = true
+    config.default_ttl = 1.week
+    config.varnish_servers << { :host => '0.0.0.0', :port => 6082 }
+  end
+  
+app/controllers/application_controller.rb
+
+  class ApplicationController < ActionController::Base
+    include Lacquer::CacheUtils
+  end
+
+== Usage
+To set a custom ttl for a controller:
+
+  before_filter { |controller| controller.set_cache_ttl(15.minutes) }
+
 == TODO
 * Add DelayedJob/Resque support.
-* Add helpful install generators.
 
 == Note on Patches/Pull Requests
  
