@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lacquer}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Russ Smith"]
@@ -31,6 +31,8 @@ Gem::Specification.new do |s|
      "lib/lacquer.rb",
      "lib/lacquer/cache_utils.rb",
      "lib/lacquer/configuration.rb",
+     "lib/lacquer/delayed_job_job.rb",
+     "lib/lacquer/resque_job.rb",
      "lib/lacquer/varnish_interface.rb",
      "rails/init.rb",
      "test/helper.rb",
