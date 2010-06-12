@@ -1,4 +1,5 @@
 require 'net/telnet'
+require 'active_support/time'
 
 require 'lacquer/configuration'
 require 'lacquer/cache_utils'
