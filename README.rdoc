@@ -26,9 +26,6 @@ To set a custom ttl for a controller:
 
   before_filter { |controller| controller.set_cache_ttl(15.minutes) }
 
-== TODO
-* Add DelayedJob/Resque support.
-
 == Note on Patches/Pull Requests
  
 * Fork the project.

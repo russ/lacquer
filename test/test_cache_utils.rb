@@ -1,20 +1,32 @@
 require 'helper'
 
-class ControllerClass
-  def self.before_filter(arg); end
-  def self.after_filter(arg); end
-
-  include Lacquer::CacheUtils
-end
-
 class TestLacquer < ActiveSupport::TestCase
   setup do
     @controller = ControllerClass.new
   end
 
-  should "take paths to clear cache for" do
-    Lacquer::VarnishInterface.expects(:send_command).twice
-    @controller.clear_cache_for('/', '/blog/posts')
+  context "when job backend is :none" do
+    should "take paths to clear cache for" do
+      Lacquer.configuration.job_backend = :none
+      Lacquer::VarnishInterface.expects(:send_command).twice
+      @controller.clear_cache_for('/', '/blog/posts')
+    end
+  end
+
+  context "when job backend is :delayed_job" do
+    should "take paths to clear cache for" do
+      Lacquer.configuration.job_backend = :delayed_job
+      Delayed::Job.expects(:enqueue).twice
+      @controller.clear_cache_for('/', '/blog/posts')
+    end
+  end
+
+  context "when job backend is :resque" do
+    should "take paths to clear cache for" do
+      Lacquer.configuration.job_backend = :resque
+      Resque.expects(:enqueue).twice
+      @controller.clear_cache_for('/', '/blog/posts')
+    end
   end
 
   context "when cache is enabled" do

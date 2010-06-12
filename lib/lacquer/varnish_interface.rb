@@ -1,5 +1,6 @@
 module Lacquer
   class VarnishInterface
+    # Sends commands over telnet to varnish servers listed in the config.
     def self.send_command(command)
       Lacquer.configuration.varnish_servers.each do |server|
         begin

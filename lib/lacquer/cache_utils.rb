@@ -25,7 +25,16 @@ module Lacquer
     # clear_cache_for(root_path, blog_posts_path, '/other/content/*')
     def clear_cache_for(*paths)
       paths.each do |path|
-        VarnishInterface.send_command('url.purge ' << path)
+        case Lacquer.configuration.job_backend
+        when :delayed_job
+          require 'lacquer/delayed_job_job'
+          Delayed::Job.enqueue(DelayedJobJob.new('url.purge ' << path))
+        when :resque
+          require 'lacquer/resque_job'
+          Resque.enqueue(ResqueJob, 'url.purge ' << path)
+        when :none
+          VarnishInterface.send_command('url.purge ' << path)
+        end
       end
     end
     

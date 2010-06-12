@@ -11,10 +11,14 @@ module Lacquer
     # Application default ttl
     attr_accessor :default_ttl
 
+    # Job Backend
+    attr_accessor :job_backend
+
     def initialize
       @enable_cache = true
       @varnish_servers = []
       @default_ttl = 1.week
+      @job_backend = :none
     end
 
     # Returns a hash of all configurable options
