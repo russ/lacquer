@@ -1,5 +1,6 @@
+require 'rubygems'
 require 'net/telnet'
-require 'active_support/time'
+require 'active_support/core_ext'
 
 require 'lacquer/configuration'
 require 'lacquer/cache_utils'
