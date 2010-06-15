@@ -15,7 +15,7 @@ class TestLacquer < ActiveSupport::TestCase
   context "when connection is succesful" do
     should "send command to varnish server" do
       Net::Telnet.stubs(:new).returns(@telnet_mock)
-      Lacquer::VarnishInterface.send_command('url.purge /')
+      Lacquer::Varnish.new.purge('/')
     end
   end
 
@@ -23,7 +23,7 @@ class TestLacquer < ActiveSupport::TestCase
     should "raise timeout exception" do
       Net::Telnet.stubs(:new).raises(Timeout::Error)
       assert_raise Lacquer::VarnishError do
-        Lacquer::VarnishInterface.send_command('url.purge /')
+        Lacquer::Varnish.new.purge('/')
       end
     end
   end

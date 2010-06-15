@@ -4,7 +4,7 @@ require 'active_support/core_ext'
 
 require 'lacquer/configuration'
 require 'lacquer/cache_utils'
-require 'lacquer/varnish_interface'
+require 'lacquer/varnish'
 
 module Lacquer
   class VarnishError < Exception; end

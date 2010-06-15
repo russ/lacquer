@@ -7,8 +7,10 @@ class TestLacquer < ActiveSupport::TestCase
 
   context "when job backend is :none" do
     should "take paths to clear cache for" do
+      varnish_stub = mock('Varnish')
+      Lacquer::Varnish.stubs('new').returns(varnish_stub)
+      varnish_stub.expects(:purge).twice
       Lacquer.configuration.job_backend = :none
-      Lacquer::VarnishInterface.expects(:send_command).twice
       @controller.clear_cache_for('/', '/blog/posts')
     end
   end

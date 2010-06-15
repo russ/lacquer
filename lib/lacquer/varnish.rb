@@ -1,7 +1,13 @@
 module Lacquer
-  class VarnishInterface
+  class Varnish
+    def purge(path)
+      send_command('url.purge ' << path)
+    end
+
+  private
+
     # Sends commands over telnet to varnish servers listed in the config.
-    def self.send_command(command)
+    def send_command(command)
       Lacquer.configuration.varnish_servers.each do |server|
         begin
           connection = Net::Telnet.new(
