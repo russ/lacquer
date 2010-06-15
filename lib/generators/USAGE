@@ -2,4 +2,4 @@ Description:
   Installs Lacquer into your Rails application.
 
 Example: 
-  rails generate lacquer
+  rails generate lacquer install
