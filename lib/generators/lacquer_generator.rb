@@ -1,11 +1,9 @@
 require 'rails/generators'
 
-class LacquerGenerator < Rails::Generators::Base
-  def self.source_root
-    File.join(File.dirname(__FILE__), 'templates')
-  end
+class LacquerGenerator < Rails::Generators::NamedBase
+  source_root File.expand_path('../templates', __FILE__)
 
-  def install_lacquer
+  def install
     copy_file('varnish.sample.vcl', 'config/varnish.sample.vcl')
     copy_file('initializer.rb', 'config/initializers/lacquer.rb')
   end
