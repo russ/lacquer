@@ -7,7 +7,7 @@ class TestLacquer < ActiveSupport::TestCase
     end 
 
     @telnet_mock = mock('Net::Telnet')
-    @telnet_mock.stubs(:puts)
+    @telnet_mock.stubs(:cmd)
 
     @controller = ControllerClass.new
   end
