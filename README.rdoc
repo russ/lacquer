@@ -36,6 +36,21 @@ To set a custom ttl for a controller:
 
   before_filter { |controller| controller.set_cache_ttl(15.minutes) }
 
+Clearing the cache:
+
+  class Posts < ApplicationController
+    after_filter :clear_cache, :only => [ :create, :update, :destroy ]
+
+  private
+
+    def clear_cache
+      clear_cache_for(
+        root_path,
+        posts_path,
+        post_path(@post))
+    end
+  end
+
 == Note on Patches/Pull Requests
  
 * Fork the project.
