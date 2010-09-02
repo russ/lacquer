@@ -4,6 +4,9 @@ describe "Varnish" do
   before(:each) do
     @telnet_mock = mock('Net::Telnet')
     Net::Telnet.stub!(:new).and_return(@telnet_mock)
+    @telnet_mock.stub!(:close)
+    @telnet_mock.stub!(:cmd)    
+    Lacquer.configuration.retries.should == 5
   end
 
   describe "with any command" do
@@ -13,6 +16,32 @@ describe "Varnish" do
         lambda {
           Lacquer::Varnish.new.purge('/')
         }.should raise_error(Lacquer::VarnishError)
+      end
+      
+      it "should retry on failure before erroring" do
+        @telnet_mock.stub!(:cmd).and_raise(Timeout::Error)
+        Net::Telnet.should_receive(:new).exactly(5).times
+        lambda {
+          Lacquer::Varnish.new.purge('/')
+        }.should raise_error(Lacquer::VarnishError)
+      end
+      
+      it "should close the connection afterwards" do
+        @telnet_mock.should_receive(:close).exactly(1).times
+        Lacquer::Varnish.new.purge('/')
+      end
+    end
+    
+    describe "when connection is unsuccessful and an error handler is set" do
+      before(:each) do
+        Lacquer.configuration.command_error_handler = mock("command_error_handler")
+      end
+      it "should call handler on error" do
+        @telnet_mock.stub!(:cmd).and_raise(Timeout::Error)
+        Lacquer.configuration.command_error_handler.should_receive(:call).exactly(1).times
+        lambda {
+          Lacquer::Varnish.new.purge('/')
+        }.should_not raise_error(Lacquer::VarnishError)
       end
     end
   end 

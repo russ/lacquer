@@ -23,6 +23,12 @@ config/initializers/lacquer.rb
     config.varnish_servers << { 
       :host => '0.0.0.0', :port => 6082
     }
+    
+    # Number of retries
+    config.retries = 5
+    
+    # config handler (optional, if you use Hoptoad or another error tracking service)
+    config.command_error_handler = lambda {|s| HoptoadNotifier.notify(s) }
   end
   
 app/controllers/application_controller.rb
