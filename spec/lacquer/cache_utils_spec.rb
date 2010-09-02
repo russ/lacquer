@@ -30,7 +30,7 @@ describe "Lacquer" do
     end
 
     describe "when backend is :resque" do
-      it "sends commands to a reque queue" do
+      it "sends commands to a resque queue" do
         Lacquer.configuration.job_backend = :resque
 
         Resque.should_receive(:enqueue).twice
@@ -41,7 +41,7 @@ describe "Lacquer" do
 
   describe "when cache is enabled" do
     describe "when no custom ttl is set" do
-      it "should send cache control headers based on defaul ttl" do
+      it "should send cache control headers based on default ttl" do
         Lacquer.configuration.enable_cache = true
         Lacquer.configuration.default_ttl = 1.week
 
