@@ -5,7 +5,7 @@ Rails drop in for Varnish support.
 == Install
 Basic installation
 
-  rails generate lacquer install
+  sudo gem install posterous-lacquer
 
 config/initializers/lacquer.rb
 
