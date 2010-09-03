@@ -14,14 +14,14 @@ describe "Varnish" do
   describe "with any command" do
     describe "when connection is unsuccessful" do
       it "should raise a Lacquer::VarnishError" do
-        @telnet_mock.stub!(:waitfor).and_raise(Timeout::Error)
+        @telnet_mock.stub!(:cmd).and_raise(Timeout::Error)
         lambda {
           Lacquer::Varnish.new.purge('/')
         }.should raise_error(Lacquer::VarnishError)
       end
       
       it "should retry on failure before erroring" do
-        @telnet_mock.stub!(:waitfor).and_raise(Timeout::Error)
+        @telnet_mock.stub!(:cmd).and_raise(Timeout::Error)
         Net::Telnet.should_receive(:new).exactly(5).times
         lambda {
           Lacquer::Varnish.new.purge('/')
@@ -39,7 +39,7 @@ describe "Varnish" do
         Lacquer.configuration.command_error_handler = mock("command_error_handler")
       end
       it "should call handler on error" do
-        @telnet_mock.stub!(:waitfor).and_raise(Timeout::Error)
+        @telnet_mock.stub!(:cmd).and_raise(Timeout::Error)
         Lacquer.configuration.command_error_handler.should_receive(:call).exactly(1).times
         lambda {
           Lacquer::Varnish.new.purge('/')
@@ -50,7 +50,74 @@ describe "Varnish" do
   
   describe "when sending a stats command" do
     it "should return an array of stats" do
-      @telnet_mock.stub!(:waitfor).and_yield("200 200\n1000 Connections")
+      @telnet_mock.stub!(:cmd).and_yield(%Q[
+200 2023    
+     6263596  Client connections accepted
+     6260911  Client requests received
+      919605  Cache hits for pass
+     2123848  Cache misses
+     6723161  Backend conn. success
+     6641493  Fetch with Length
+       81512  Fetch wanted close
+          11  Fetch failed
+        1648  N struct sess_mem
+          81  N struct sess
+       22781  N struct object
+       23040  N struct objectcore
+       36047  N struct objecthead
+       56108  N struct smf
+        1646  N small free smf
+         263  N large free smf
+          55  N struct vbe_conn
+         804  N worker threads
+        1583  N worker threads created
+        2114  N worker threads limited
+        1609  N overflowed work requests
+           1  N backends
+     1693663  N expired objects
+      400637  N LRU nuked objects
+          10  N LRU moved objects
+         254  HTTP header overflows
+     2506470  Objects sent with write
+     6263541  Total Sessions
+     6260911  Total Requests
+          40  Total pipe
+     4599215  Total pass
+     6722994  Total fetch
+  2607029095  Total header bytes
+ 55280196533  Total body bytes
+     6263536  Session Closed
+           5  Session herd
+   511352337  SHM records
+    33376035  SHM writes
+       33177  SHM flushes due to overflow
+      208858  SHM MTX contention
+         246  SHM cycles through buffer
+     6361382  allocator requests
+       54199  outstanding allocations
+   953389056  bytes allocated
+   120352768  bytes free
+         323  SMS allocator requests
+      151528  SMS bytes allocated
+      151528  SMS bytes freed
+     6723053  Backend requests made
+           1  N vcl total
+           1  N vcl available
+          49  N total active purges
+         197  N new purges added
+         148  N old purges deleted
+        6117  N objects tested
+       60375  N regexps tested against
+         140  N duplicate purges removed
+      944407  HCB Lookups without lock
+           3  HCB Lookups with lock
+     2099076  HCB Inserts
+      515351  Objects ESI parsed (unlock)
+       35371  Client uptime
+
+500 22      
+Closing CLI connection    
+].strip)
       stats = Lacquer::Varnish.new.stats
       stats.size.should be(1)
     end
@@ -58,7 +125,7 @@ describe "Varnish" do
 
   describe "when sending a purge command" do 
     it "should return successfully" do
-      @telnet_mock.stub!(:waitfor).and_yield('200')
+      @telnet_mock.stub!(:cmd).and_yield('200')
       Lacquer::Varnish.new.purge('/').should be(true)
     end
   end

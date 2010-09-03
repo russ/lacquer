@@ -7,7 +7,7 @@ module Lacquer
       
         stats = stats.collect do |stat|
           stat = stat.strip.match(/(\d+)\s+(.+)$/)
-          { :key => stat[2], :value => stat[1] }
+          { :key => stat[2], :value => stat[1] } if stat
         end
       end
     end
@@ -18,11 +18,12 @@ module Lacquer
       end
     end
 
-  private
+  # private
 
    # Sends commands over telnet to varnish servers listed in the config.
     def send_command(command)
       Lacquer.configuration.varnish_servers.collect do |server|
+        # RAILS_DEFAULT_LOGGER.debug("POSTEROUS_LACQUER_DEBUG: running(#{command.inspect}) on #{server.inspect}")
         retries = 0
         response = nil
         begin
@@ -31,8 +32,7 @@ module Lacquer
             'Host' => server[:host],
             'Port' => server[:port],
             'Timeout' => server[:timeout] || 5)
-          connection.puts(command)
-          connection.waitfor({"Match" => /^200/}) {|r| response = r.strip}
+          connection.cmd(command + "\nquit\n") {|r| response = r.strip}
           connection.close
         rescue Exception => e
           if retries < Lacquer.configuration.retries
@@ -47,7 +47,7 @@ module Lacquer
             else
               raise VarnishError.new("Error while trying to connect to #{server[:host]}:#{server[:port]} #{e}")
             end
-          end
+          end        
         end
         response
       end
