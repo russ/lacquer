@@ -43,7 +43,7 @@ module Lacquer
     # to set cache properly.
     def send_cache_control_headers
       if Lacquer.configuration.enable_cache
-        expires_in(@cache_ttl, :public => true)
+        expires_in(@cache_ttl, :public => true, :private => false)
       end
     end
   end
