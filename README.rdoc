@@ -1,6 +1,6 @@
 = lacquer
 
-Rails drop in for Varnish support.
+Rails drop in for Varnish support. This version is adapted from Russ Smith's gem and is in production use on posterous.com.
 
 == Install
 Basic installation
