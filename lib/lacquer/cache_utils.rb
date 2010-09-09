@@ -42,7 +42,7 @@ module Lacquer
     # These are the headers that varnish responds to
     # to set cache properly.
     def send_cache_control_headers
-      if Lacquer.configuration.enable_cache
+      if Lacquer.configuration.enable_cache && @cache_ttl && @cache_ttl != 0
         expires_in(@cache_ttl, :public => true, :private => false)
       end
     end
