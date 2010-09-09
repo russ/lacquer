@@ -64,7 +64,12 @@ The default TTL for most actions is set to 0, since for most cases you'll probab
 
   Cache-Control: max-age=0, no-cache, private
 
-This is good for normal controller actions. For p
+This is good for normal controller actions, since you won't want to cache them. If TTL for an action is set to 0, it won't mess with the default header. 
+
+The key gotcha here is that cached pages strip cookies, so if your application relies on sessions and uses authenticity tokens, the user will need a session cookie set before form actions will work. Setting default TTL to 0 here will make sure these session cookies won't break.
+
+As a result, all you have to do to set a cacheable action is the before filter above. 
+
 
 
 == VCL config
@@ -128,12 +133,6 @@ This is good for normal controller actions. For p
       return(pass);
     }
   
-
-    # This is such a hack. Will figure out a better way soon.
-    if (req.http.Referer ~ "jumpto" || req.http.Origin ~ "poster") {
-      return(pass);
-    }
-
     #
     # Everything below here should be cached
     #
@@ -155,9 +154,7 @@ This is good for normal controller actions. For p
       }
     }
 
-    # Clear cookie and authorization headers, set grace time, lookup in the cache
-    #unset req.http.Cookie;
-    #unset req.http.Authorization;
+    # Set grace time, lookup in the cache
     set req.grace = 1s;
     return(lookup);
   }
@@ -187,16 +184,12 @@ This is good for normal controller actions. For p
 
     # Do not cache the object if the status is not in the 200s
     if (beresp.status >= 300) {
-      # Remove the Set-Cookie header
-      #remove beresp.http.Set-Cookie;
       return(pass);
     }
 
     #
     # Everything below here should be cached
     #
-
-
     if (req.url ~ "\/posts\/comments") {
       set beresp.ttl = 0s;
     }
