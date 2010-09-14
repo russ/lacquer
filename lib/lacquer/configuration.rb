@@ -16,14 +16,14 @@ module Lacquer
 
     # Job Backend
     attr_accessor :job_backend
-    
+
     # Error handler
     attr_accessor :command_error_handler
 
     def initialize
       @enable_cache = true
       @varnish_servers = []
-      @default_ttl = 1.week
+      @default_ttl = 0
       @job_backend = :none
       @retries = 5
       @command_error_handler = nil

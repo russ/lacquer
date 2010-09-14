@@ -1,36 +1,36 @@
 = lacquer
 
-Rails drop in for Varnish support.
+Rails drop in for Varnish support. This version is adapted from Russ Smith's gem and is in production use on posterous.com.
 
 == Install
 Basic installation
 
-  rails generate lacquer install
+  sudo gem install posterous-lacquer
 
 config/initializers/lacquer.rb
 
   Lacquer.configure do |config|
     # Globally enable/disable cache
     config.enable_cache = true
-  
+
     # Unless overridden in a controller or action, the default will be used
     config.default_ttl = 1.week
-  
+
     # Can be :none, :delayed_job, :resque
     config.job_backend = :none
-  
+
     # Array of Varnish servers to manage
     config.varnish_servers << { 
       :host => '0.0.0.0', :port => 6082
     }
-    
+
     # Number of retries
     config.retries = 5
-    
+
     # config handler (optional, if you use Hoptoad or another error tracking service)
     config.command_error_handler = lambda {|s| HoptoadNotifier.notify(s) }
   end
-  
+
 app/controllers/application_controller.rb
 
   class ApplicationController < ActionController::Base
@@ -38,6 +38,7 @@ app/controllers/application_controller.rb
   end
 
 == Usage
+
 To set a custom ttl for a controller:
 
   before_filter { |controller| controller.set_cache_ttl(15.minutes) }
@@ -57,8 +58,20 @@ Clearing the cache:
     end
   end
 
+== Gotchas
+
+The default TTL for most actions is set to 0, since for most cases you'll probably want to be fairly explicit about what pages do get cached by varnish. The default cache header is typically
+
+  Cache-Control: max-age=0, no-cache, private
+
+This is good for normal controller actions, since you won't want to cache them. If TTL for an action is set to 0, it won't mess with the default header. 
+
+The key gotcha here is that cached pages strip cookies, so if your application relies on sessions and uses authenticity tokens, the user will need a session cookie set before form actions will work. Setting default TTL to 0 here will make sure these session cookies won't break.
+
+As a result, all you have to do to set a cacheable action is the before filter above. 
+
 == Note on Patches/Pull Requests
- 
+
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it. This is important so I don't break it in a
