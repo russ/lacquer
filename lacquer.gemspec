@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{posterous-lacquer}
+  s.name = %q{lacquer}
   s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Garry Tan", "Russ Smith"]
-  s.date = %q{2010-09-14}
-  s.description = %q{Rails drop in for Varnish support, used in production by Posterous.}
-  s.email = %q{garry@posterous.com}
+  s.authors = ["Russ Smith", "Garry Tan"]
+  s.date = %q{2010-06-14}
+  s.description = %q{Rails drop in for Varnish support.}
+  s.email = %q{russ@bashme.org}
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "init.rb",
+     "lacquer.gemspec",
      "lib/generators/USAGE",
      "lib/generators/lacquer_generator.rb",
      "lib/generators/templates/initializer.rb",
@@ -34,35 +35,31 @@ Gem::Specification.new do |s|
      "lib/lacquer/delayed_job_job.rb",
      "lib/lacquer/resque_job.rb",
      "lib/lacquer/varnish.rb",
-     "posterous-lacquer.gemspec",
      "rails/init.rb",
-     "spec/lacquer/cache_utils_spec.rb",
-     "spec/lacquer/varnish_spec.rb",
-     "spec/spec.opts",
-     "spec/spec_helper.rb"
+     "test.rb",
+     "test/helper.rb",
+     "test/test_cache_utils.rb",
+     "test/test_varnish_interface.rb"
   ]
-  s.homepage = %q{http://github.com/posterous/lacquer}
+  s.homepage = %q{http://github.com/russ/lacquer}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
-  s.summary = %q{Rails drop in for Varnish support, used in production by Posterous.}
+  s.rubygems_version = %q{1.3.6}
+  s.summary = %q{Rails drop in for Varnish support.}
   s.test_files = [
-    "spec/lacquer/cache_utils_spec.rb",
-     "spec/lacquer/varnish_spec.rb",
-     "spec/spec_helper.rb"
+    "test/helper.rb",
+     "test/test_cache_utils.rb",
+     "test/test_varnish_interface.rb"
   ]
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<rspec>, [">= 1.3.0"])
+    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
     else
-      s.add_dependency(%q<rspec>, [">= 1.3.0"])
     end
   else
-    s.add_dependency(%q<rspec>, [">= 1.3.0"])
   end
 end
 
