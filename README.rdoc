@@ -74,6 +74,19 @@ As a result, all you have to do to set a cacheable action is the before filter a
 
 == VCL config
 
+  #-e This is a basic VCL configuration file for varnish.  See the vcl(7)
+  #man page for details on VCL syntax and semantics.
+  #
+  #Default backend definition.  Set this to point to your content
+  #server.
+  #
+
+  C{
+    #include <string.h> 
+    #include <stdlib.h> 
+    #include <stdio.h>
+  }C
+
   backend default {
   .host = "127.0.0.1";
   .port = "8282";
@@ -88,13 +101,14 @@ As a result, all you have to do to set a cacheable action is the before filter a
     set req.hash += req.url;
     set req.hash += req.http.host;
 
+    # This will make sure that the mobile version of our site gets cached under a different hash
     if (req.http.cookie ~ "mobile_view=true") {
       set req.hash += "mobile";
     }
     if (req.http.user-agent ~ "(?i)palm|blackberry|nokia|phone|midp|mobi|symbian|chtml|ericsson|minimo|audiovox|motorola|samsung|telit|upg1|windows ce|ucweb|astel|plucker|x320|x240|j2me|sgh|portable|sprint|docomo|kddi|softbank|android|mmp|pdxgw|netfront|xiino|vodafone|portalmmm|sagem|mot-|sie-|ipod|up\\.b|webos|amoi|novarra|cdm|alcatel|pocket|iphone|mobileexplorer|mobile" && !(req.http.user-agent ~ "(?i)ipad") && !(req.http.cookie ~ "full_site=true")) {
       set req.hash += "mobile";
     }
-  
+
     return(hash);
   }
 
@@ -102,7 +116,7 @@ As a result, all you have to do to set a cacheable action is the before filter a
   # Handling of requests that are received from clients.
   # First decide whether or not to lookup data in the cache.
   #
-  sub vcl_recv {
+  sub vcl_recv {  
     # Pipe requests that are non-RFC2616 or CONNECT which is weird.
     if (req.request != "GET" &&
         req.request != "HEAD" &&
@@ -128,11 +142,42 @@ As a result, all you have to do to set a cacheable action is the before filter a
     if (req.url ~ "^/admin") {
       return(pass);
     }
-  
+
+    # Never cache private posts
     if (req.url ~ "\/private\/") {
       return(pass);
     }
-  
+
+
+    # Don't cache the result of a redirect
+    if (req.http.Referer ~ "jumpto" || req.http.Origin ~ "poster") {
+      return(pass);
+    }
+
+    # Since we don't site owners and contributors to view the 
+    # cached version of their site, we match a special cookie we set
+    # with the current host. This assures that site owners see
+    # private posts, while other users do not.
+    C{
+      char *host = VRT_GetHdr(sp, HDR_REQ, "\005Host:");
+      char *cookie = VRT_GetHdr(sp, HDR_REQ, "\007Cookie:");
+      char* result = NULL;
+      if (cookie == NULL) {
+        cookie = "";
+      }
+      if (host == NULL) {
+        host = "";
+      }
+      result = strstr(cookie, host);
+      if (result != NULL) {
+        VRT_SetHdr(sp, HDR_REQ, "\013X-No-Cache:", "YES", vrt_magic_string_end);
+      }
+    }C
+
+    if (req.http.X-No-Cache ~ "YES") {
+      return(pass);
+    }
+
     #
     # Everything below here should be cached
     #
@@ -154,7 +199,9 @@ As a result, all you have to do to set a cacheable action is the before filter a
       }
     }
 
-    # Set grace time, lookup in the cache
+    # Clear cookie and authorization headers, set grace time, lookup in the cache
+    #unset req.http.Cookie;
+    #unset req.http.Authorization;
     set req.grace = 1s;
     return(lookup);
   }
@@ -176,7 +223,9 @@ As a result, all you have to do to set a cacheable action is the before filter a
   # backend, or the request to the backend has failed
   #
   sub vcl_fetch {
+    # Comments are now fetched via ESI.
     esi;
+
     # Do not cache the object if the backend application does not want us to.
     if (beresp.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
       return(pass);
@@ -184,12 +233,16 @@ As a result, all you have to do to set a cacheable action is the before filter a
 
     # Do not cache the object if the status is not in the 200s
     if (beresp.status >= 300) {
+      # Remove the Set-Cookie header
+      #remove beresp.http.Set-Cookie;
       return(pass);
     }
 
     #
     # Everything below here should be cached
     #
+
+    # Don't cache the comments ESI
     if (req.url ~ "\/posts\/comments") {
       set beresp.ttl = 0s;
     }
@@ -200,6 +253,8 @@ As a result, all you have to do to set a cacheable action is the before filter a
     # Set the grace time
     set beresp.grace = 1s;
 
+    # Static assets aren't served out of Varnish just yet, but when they are, this will
+    # make sure the browser caches them for a long time.
     if (req.url ~ "\.(css|js|jpg|jpeg|gif|ico|png)\??\d*$") {
       /* Remove Expires from backend, it's not long enough */
       unset beresp.http.expires;
@@ -234,6 +289,7 @@ As a result, all you have to do to set a cacheable action is the before filter a
       set resp.http.X-Cache = "MISS";
     }
   }
+
 
 
 
