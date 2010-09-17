@@ -70,6 +70,225 @@ The key gotcha here is that cached pages strip cookies, so if your application r
 
 As a result, all you have to do to set a cacheable action is the before filter above. 
 
+== VCL config
+
+  #-e This is a basic VCL configuration file for varnish.  See the vcl(7)
+  #man page for details on VCL syntax and semantics.
+  #
+  #Default backend definition.  Set this to point to your content
+  #server.
+  #
+
+  C{
+    #include <string.h> 
+    #include <stdlib.h> 
+    #include <stdio.h>
+  }C
+
+  backend default {
+  .host = "127.0.0.1";
+  .port = "8282";
+  .max_connections = 2000;
+  .connect_timeout = 600s;
+  .first_byte_timeout = 600s;
+  .between_bytes_timeout = 600s;
+  }
+
+  sub vcl_hash {
+    ### these 2 entries are the default ones used for vcl. Below we add our own.
+    set req.hash += req.url;
+    set req.hash += req.http.host;
+
+    # This will make sure that the mobile version of our site gets cached under a different hash
+    if (req.http.cookie ~ "mobile_view=true") {
+      set req.hash += "mobile";
+    }
+    if (req.http.user-agent ~ "(?i)palm|blackberry|nokia|phone|midp|mobi|symbian|chtml|ericsson|minimo|audiovox|motorola|samsung|telit|upg1|windows ce|ucweb|astel|plucker|x320|x240|j2me|sgh|portable|sprint|docomo|kddi|softbank|android|mmp|pdxgw|netfront|xiino|vodafone|portalmmm|sagem|mot-|sie-|ipod|up\\.b|webos|amoi|novarra|cdm|alcatel|pocket|iphone|mobileexplorer|mobile" && !(req.http.user-agent ~ "(?i)ipad") && !(req.http.cookie ~ "full_site=true")) {
+      set req.hash += "mobile";
+    }
+
+    return(hash);
+  }
+
+  #
+  # Handling of requests that are received from clients.
+  # First decide whether or not to lookup data in the cache.
+  #
+  sub vcl_recv {  
+    # Pipe requests that are non-RFC2616 or CONNECT which is weird.
+    if (req.request != "GET" &&
+        req.request != "HEAD" &&
+        req.request != "PUT" &&
+        req.request != "POST" &&
+        req.request != "TRACE" &&
+        req.request != "OPTIONS" &&
+        req.request != "DELETE") {
+      return(pipe);
+    }
+
+    # Pass requests that are not GET or HEAD
+    if (req.request != "GET" && req.request != "HEAD") {
+      return(pass);
+    }
+
+    # Pass requests for blog pages greater than page 3
+    if (req.url ~ "page=([4-9]|[1-9][0-9]+)$") {
+      return(pass);
+    }
+
+    # Pass requests that we know we aren't caching
+    if (req.url ~ "^/admin") {
+      return(pass);
+    }
+
+    # Never cache private posts
+    if (req.url ~ "\/private\/") {
+      return(pass);
+    }
+
+
+    # Don't cache the result of a redirect
+    if (req.http.Referer ~ "jumpto" || req.http.Origin ~ "poster") {
+      return(pass);
+    }
+
+    # Since we don't site owners and contributors to view the 
+    # cached version of their site, we match a special cookie we set
+    # with the current host. This assures that site owners see
+    # private posts, while other users do not.
+    C{
+      char *host = VRT_GetHdr(sp, HDR_REQ, "\005Host:");
+      char *cookie = VRT_GetHdr(sp, HDR_REQ, "\007Cookie:");
+      char* result = NULL;
+      if (cookie == NULL) {
+        cookie = "";
+      }
+      if (host == NULL) {
+        host = "";
+      }
+      result = strstr(cookie, host);
+      if (result != NULL) {
+        VRT_SetHdr(sp, HDR_REQ, "\013X-No-Cache:", "YES", vrt_magic_string_end);
+      }
+    }C
+
+    if (req.http.X-No-Cache ~ "YES") {
+      return(pass);
+    }
+
+    #
+    # Everything below here should be cached
+    #
+
+    # Handle compression correctly. Varnish treats headers literally, not
+    # semantically. So it is very well possible that there are cache misses
+    # because the headers sent by different browsers aren't the same.
+    # @see: http://varnish.projects.linpro.no/wiki/FAQ/Compression
+    if (req.http.Accept-Encoding) {
+      if (req.http.Accept-Encoding ~ "gzip") {
+        # if the browser supports it, we'll use gzip
+        set req.http.Accept-Encoding = "gzip";
+      } elsif (req.http.Accept-Encoding ~ "deflate") {
+        # next, try deflate if it is supported
+        set req.http.Accept-Encoding = "deflate";
+      } else {
+        # unknown algorithm. Probably junk, remove it
+        remove req.http.Accept-Encoding;
+      }
+    }
+
+    # Clear cookie and authorization headers, set grace time, lookup in the cache
+    #unset req.http.Cookie;
+    #unset req.http.Authorization;
+    set req.grace = 1s;
+    return(lookup);
+  }
+
+  #
+  # Called when entering pipe mode
+  #  
+  sub vcl_pipe {
+    # If we don't set the Connection: close header, any following
+    # requests from the client will also be piped through and
+    # left untouched by varnish. We don't want that.
+    set req.http.connection = "close";
+    return(pipe);
+  }
+
+
+  #
+  # Called when the requested object has been retrieved from the
+  # backend, or the request to the backend has failed
+  #
+  sub vcl_fetch {
+    # Comments are now fetched via ESI.
+    esi;
+
+    # Do not cache the object if the backend application does not want us to.
+    if (beresp.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
+      return(pass);
+    }
+
+    # Do not cache the object if the status is not in the 200s
+    if (beresp.status >= 300) {
+      # Remove the Set-Cookie header
+      #remove beresp.http.Set-Cookie;
+      return(pass);
+    }
+
+    #
+    # Everything below here should be cached
+    #
+
+    # Don't cache the comments ESI
+    if (req.url ~ "\/posts\/comments") {
+      set beresp.ttl = 0s;
+    }
+
+    # Remove the Set-Cookie header
+    remove beresp.http.Set-Cookie;
+
+    # Set the grace time
+    set beresp.grace = 1s;
+
+    # Static assets aren't served out of Varnish just yet, but when they are, this will
+    # make sure the browser caches them for a long time.
+    if (req.url ~ "\.(css|js|jpg|jpeg|gif|ico|png)\??\d*$") {
+      /* Remove Expires from backend, it's not long enough */
+      unset beresp.http.expires;
+
+      /* Set the clients TTL on this object */
+      set beresp.http.cache-control = "public, max-age=31536000";
+
+      /* marker for vcl_deliver to reset Age: */
+      set beresp.http.magicmarker = "1";
+    } else {
+      set beresp.http.Cache-Control = "private, max-age=0, must-revalidate";
+      set beresp.http.Pragma = "no-cache";
+    }
+
+    # return(deliver); the object
+    return(deliver);
+  }
+
+  sub vcl_deliver {
+    if (resp.http.magicmarker) {
+      /* Remove the magic marker */
+      unset resp.http.magicmarker;
+
+      /* By definition we have a fresh object */
+      set resp.http.age = "0";
+    }   
+
+    # Add a header to indicate a cache HIT/MISS
+    if (obj.hits > 0) {
+      set resp.http.X-Cache = "HIT";
+    } else {
+      set resp.http.X-Cache = "MISS";
+    }
+  }
+
+
 == Note on Patches/Pull Requests
 
 * Fork the project.
