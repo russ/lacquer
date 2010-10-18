@@ -128,5 +128,10 @@ Closing CLI connection
       @telnet_mock.stub!(:cmd).and_yield('200')
       Lacquer::Varnish.new.purge('/').should be(true)
     end
+    
+    it "should send a valid purge command" do
+      @telnet_mock.should_receive(:cmd).with("url.purge /\nquit\n").once
+      Lacquer::Varnish.new.purge("/")
+    end      
   end
 end

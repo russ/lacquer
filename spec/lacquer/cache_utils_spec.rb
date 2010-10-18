@@ -46,7 +46,7 @@ describe "Lacquer" do
         Lacquer.configuration.default_ttl = 1.week
 
         @controller.set_default_cache_ttl
-        @controller.should_receive(:expires_in).with(1.week, :public => true)
+        @controller.should_receive(:expires_in).with(1.week, :public => true, :private => false)
         @controller.send_cache_control_headers
       end
     end
@@ -56,7 +56,7 @@ describe "Lacquer" do
         Lacquer.configuration.enable_cache = true
 
         @controller.set_cache_ttl(10.week)
-        @controller.should_receive(:expires_in).with(10.week, :public => true)
+        @controller.should_receive(:expires_in).with(10.week, :public => true, :private => false)
         @controller.send_cache_control_headers
       end
     end
