@@ -28,12 +28,12 @@ module Lacquer
         case Lacquer.configuration.job_backend
         when :delayed_job
           require 'lacquer/delayed_job_job'
-          Delayed::Job.enqueue(Lacquer::DelayedJobJob.new('url.purge ' << path))
+          Delayed::Job.enqueue(Lacquer::DelayedJobJob.new(path))
         when :resque
           require 'lacquer/resque_job'
-          Resque.enqueue(Lacquer::ResqueJob, 'url.purge ' << path)
+          Resque.enqueue(Lacquer::ResqueJob, path)
         when :none
-          Varnish.new.purge('url.purge ' << path)
+          Varnish.new.purge(path)
         end
       end
     end
