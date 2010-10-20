@@ -12,6 +12,10 @@ class ControllerClass
   include Lacquer::CacheUtils
 end
 
+class SweeperClass
+  include Lacquer::CacheUtils
+end
+
 module Delayed;
   module Job; end
 end

@@ -61,4 +61,14 @@ describe "Lacquer" do
       end
     end
   end
+
+  it "should allow purge by non-controller sweepers" do
+    @varnish_stub = mock('varnish')
+    Lacquer::Varnish.stub!(:new).and_return(@varnish_stub)
+
+    @sweeper = SweeperClass.new
+
+    @varnish_stub.should_receive(:purge)
+    @sweeper.clear_cache_for('/')
+  end
 end
