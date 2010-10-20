@@ -12,11 +12,18 @@ describe "Lacquer" do
     end
 
     describe "when backend is :none" do
-      it "sends commands to varnish instantly" do
+      before(:each) do
         Lacquer.configuration.job_backend = :none
+      end
 
+      it "sends commands to varnish instantly" do
         @varnish_stub.should_receive(:purge).twice
         @controller.clear_cache_for('/', '/blog/posts')
+      end
+
+      it "calls purge with the correct parameter" do
+        @varnish_stub.should_receive(:purge).with('/')
+        @controller.clear_cache_for('/')
       end
     end
 
