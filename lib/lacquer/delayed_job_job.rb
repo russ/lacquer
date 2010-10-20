@@ -1,7 +1,7 @@
 module Lacquer
-  class DelayedJobJob < Struct.new(:command)
+  class DelayedJobJob < Struct.new(:url)
     def perform
-      Varnish.new.purge(command)
+      Varnish.new.purge(url)
     end
   end
 end
