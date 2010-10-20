@@ -4,8 +4,10 @@ module Lacquer
       base.class_eval do
         attr_reader :cache_ttl
 
-        before_filter :set_default_cache_ttl
-        after_filter :send_cache_control_headers
+        if respond_to? :before_filter
+          before_filter :set_default_cache_ttl
+          after_filter :send_cache_control_headers
+        end
       end
     end
 
