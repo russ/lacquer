@@ -9,8 +9,8 @@ begin
     gem.description = %Q{Rails drop in for Varnish support.}
     gem.email = "russ@bashme.org"
     gem.homepage = "http://github.com/russ/lacquer"
-    gem.authors = ["Russ Smith"]
-    gem.add_development_dependency "rspec", ">= 1.3.0"
+    gem.authors = ["Russ Smith (russ@bashme.org)", "Garry Tan (garry@posterous.com)"]
+    gem.add_development_dependency "rspec", "~> 1.3.0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
