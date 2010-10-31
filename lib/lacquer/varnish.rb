@@ -32,7 +32,7 @@ module Lacquer
             'Host' => server[:host],
             'Port' => server[:port],
             'Timeout' => server[:timeout] || 5)
-          connection.cmd(command + "\nquit\n") {|r| response = r.strip}
+          connection.cmd('String' => command, 'Match' => /\n\n/) {|r| response = r.split("\n").first.strip}
           connection.close
         rescue Exception => e
           if retries < Lacquer.configuration.retries
