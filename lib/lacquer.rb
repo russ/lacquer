@@ -1,10 +1,10 @@
-require 'rubygems'
-require 'net/telnet'
-require 'active_support/core_ext'
+require "rubygems"
+require "net/telnet"
+require "active_support/core_ext"
 
-require 'lacquer/configuration'
-require 'lacquer/cache_utils'
-require 'lacquer/varnish'
+require "lacquer/configuration"
+require "lacquer/cache_utils"
+require "lacquer/varnish"
 
 module Lacquer
   class VarnishError < Exception; end
