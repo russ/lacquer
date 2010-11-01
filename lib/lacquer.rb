@@ -7,16 +7,16 @@ require "lacquer/cache_utils"
 require "lacquer/varnish"
 
 module Lacquer
-  class VarnishError < Exception; end
+  class VarnishError < Exception; end # @private
 
   class << self
     attr_accessor :configuration
 
     # Call this method to modify defaults in your initailizers.
     #
-    # Lacquer.configure do |config|
-    #   config.varnish_servers << { :host => '0.0.0.0', :port => 6082, :timeout => 5 }
-    # end
+    #   Lacquer.configure do |config|
+    #     config.varnish_servers << { :host => '0.0.0.0', :port => 6082, :timeout => 5 }
+    #   end
     def configure
       self.configuration ||= Configuration.new
       yield(configuration)

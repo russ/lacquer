@@ -1,8 +1,17 @@
 GEM
+  remote: http://rubygems.org/
   specs:
     activesupport (3.0.1)
     diff-lcs (1.1.2)
+    gemcutter (0.5.0)
+      json_pure
+    git (1.2.5)
     i18n (0.4.1)
+    jeweler (1.4.0)
+      gemcutter (>= 0.1.0)
+      git (>= 1.2.5)
+      rubyforge (>= 2.0.0)
+    json_pure (1.4.6)
     rake (0.8.7)
     rspec (2.0.0)
       rspec-core (= 2.0.0)
@@ -14,6 +23,9 @@ GEM
     rspec-mocks (2.0.0)
       rspec-core (= 2.0.0)
       rspec-expectations (= 2.0.0)
+    rubyforge (2.0.4)
+      json_pure (>= 1.1.7)
+    yard (0.6.1)
 
 PLATFORMS
   ruby
@@ -21,5 +33,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (= 3.0.1)
   i18n (= 0.4.1)
+  jeweler
   rake
   rspec (= 2.0.0)
+  yard

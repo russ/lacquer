@@ -2,7 +2,7 @@ require "rubygems"
 require "bundler/setup"
 
 require "rake"
-require "rake/rdoctask"
+require "yard"
 require "rspec"
 require "rspec/core/rake_task"
 
@@ -29,13 +29,9 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = %w[--color]
 end
 
-task :default => [ :spec ]
-
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "testing #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+YARD::Rake::YardocTask.new do |t|
+  t.files = [ "lib/**/*.rb" ]
+  t.options = [ "--no-private" ]
 end
+
+task :default => [ :spec ]

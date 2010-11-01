@@ -11,6 +11,7 @@ module Lacquer
       end
     end
 
+    # Sends the command 'url.purge *path*'
     def purge(path)
       send_command('url.purge ' << path).all? do |result|
         result =~ /200/

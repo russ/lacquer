@@ -1,6 +1,6 @@
 module Lacquer
   class Configuration
-    OPTIONS = [ :varnish_servers ]
+    OPTIONS = []
 
     # Enable cache
     attr_accessor :enable_cache
@@ -11,10 +11,10 @@ module Lacquer
     # Application default ttl
     attr_accessor :default_ttl
 
-    # Application default ttl
+    # Number of retries before failing
     attr_accessor :retries
 
-    # Job Backend
+    # Job backend
     attr_accessor :job_backend
 
     # Error handler
