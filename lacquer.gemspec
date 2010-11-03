@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lacquer}
-  s.version = "0.3.0"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Russ Smith"]
-  s.date = %q{2010-09-14}
+  s.authors = ["Russ Smith (russ@bashme.org)", "Ryan Johns", "Garry Tan (garry@posterous.com), Gabe da Silveira (gabe@websaviour.com)"]
+  s.date = %q{2010-11-03}
   s.description = %q{Rails drop in for Varnish support.}
   s.email = %q{russ@bashme.org}
   s.extra_rdoc_files = [
@@ -17,18 +17,21 @@ Gem::Specification.new do |s|
      "README.rdoc"
   ]
   s.files = [
-    ".document",
+    ".bundle/config",
+     ".document",
      ".gitignore",
+     "Gemfile",
+     "Gemfile.lock",
      "LICENSE",
      "README.rdoc",
      "Rakefile",
      "VERSION",
      "init.rb",
      "lacquer.gemspec",
-     "lib/generators/USAGE",
-     "lib/generators/lacquer_generator.rb",
-     "lib/generators/templates/initializer.rb",
-     "lib/generators/templates/varnish.sample.vcl",
+     "lib/generators/lacquer/USAGE",
+     "lib/generators/lacquer/install_generator.rb",
+     "lib/generators/lacquer/templates/initializer.rb",
+     "lib/generators/lacquer/templates/varnish.sample.vcl",
      "lib/lacquer.rb",
      "lib/lacquer/cache_utils.rb",
      "lib/lacquer/configuration.rb",
@@ -37,8 +40,9 @@ Gem::Specification.new do |s|
      "lib/lacquer/varnish.rb",
      "rails/init.rb",
      "spec/lacquer/cache_utils_spec.rb",
+     "spec/lacquer/delayed_job_job_spec.rb",
+     "spec/lacquer/resque_job_spec.rb",
      "spec/lacquer/varnish_spec.rb",
-     "spec/spec.opts",
      "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/russ/lacquer}
@@ -48,6 +52,8 @@ Gem::Specification.new do |s|
   s.summary = %q{Rails drop in for Varnish support.}
   s.test_files = [
     "spec/lacquer/cache_utils_spec.rb",
+     "spec/lacquer/delayed_job_job_spec.rb",
+     "spec/lacquer/resque_job_spec.rb",
      "spec/lacquer/varnish_spec.rb",
      "spec/spec_helper.rb"
   ]
@@ -56,7 +62,7 @@ Gem::Specification.new do |s|
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<rspec>, ["~> 1.3.0"])
     else
       s.add_dependency(%q<rspec>, ["~> 1.3.0"])
