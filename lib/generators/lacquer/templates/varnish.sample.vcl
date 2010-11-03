@@ -3,11 +3,8 @@ backend default {
   .port = "10000";
 }
 
-
-#
 # Handling of requests that are received from clients.
 # First decide whether or not to lookup data in the cache.
-#
 sub vcl_recv {
   # Pipe requests that are non-RFC2616 or CONNECT which is weird.
   if (req.request != "GET" &&
@@ -29,10 +26,6 @@ sub vcl_recv {
   if (req.url ~ "^/admin") {
     pass;
   }
-
-  #
-  # Everything below here should be cached
-  #
 
   # Handle compression correctly. Varnish treats headers literally, not
   # semantically. So it is very well possible that there are cache misses
@@ -58,9 +51,7 @@ sub vcl_recv {
   lookup;
 }
 
-#
 # Called when entering pipe mode
-#
 sub vcl_pipe {
   # If we don't set the Connection: close header, any following
   # requests from the client will also be piped through and
@@ -69,10 +60,8 @@ sub vcl_pipe {
   pipe;
 }
 
-#
 # Called when the requested object has been retrieved from the
 # backend, or the request to the backend has failed
-#
 sub vcl_fetch {
   # Do not cache the object if the backend application does not want us to.
   if (obj.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
@@ -86,9 +75,7 @@ sub vcl_fetch {
     pass;
   }
 
-  #
   # Everything below here should be cached
-  #
 
   # Remove the Set-Cookie header
   remove obj.http.Set-Cookie;
@@ -100,9 +87,7 @@ sub vcl_fetch {
   deliver;
 }
 
-#
 # Called before the response is sent back to the client
-#
 sub vcl_deliver {
   # Force browsers and intermediary caches to always check back with us
   set resp.http.Cache-Control = "private, max-age=0, must-revalidate";

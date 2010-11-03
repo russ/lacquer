@@ -9,7 +9,13 @@ Lacquer.configure do |config|
   config.job_backend = :none
 
   # Array of Varnish servers to manage
-  config.varnish_servers << { 
-    :host => '0.0.0.0', :port => 6082
+  config.varnish_servers << {
+    :host => "0.0.0.0", :port => 6082
   }
+
+  # Number of retries
+  config.retries = 5
+
+  # Config handler (optional, if you use Hoptoad or another error tracking service)
+  config.command_error_handler = lambda { |s| HoptoadNotifier.notify(s) }
 end

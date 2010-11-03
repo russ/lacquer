@@ -1,0 +1,8 @@
+Description:
+  Installs Lacquer into your Rails application.
+
+  Provides a sample varnish vcl and a Lacquer 
+  initializer to get you started.
+
+Example:
+  rails generate lacquer:install
