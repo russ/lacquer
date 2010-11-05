@@ -1,2 +1,2 @@
 bundle install --quiet
-RAILS_ENV=test rake spec
+rake spec
