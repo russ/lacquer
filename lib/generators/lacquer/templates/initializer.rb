@@ -10,7 +10,7 @@ Lacquer.configure do |config|
 
   # Array of Varnish servers to manage
   config.varnish_servers << {
-    :host => "0.0.0.0", :port => 6082
+    :host => "0.0.0.0", :port => 6082 # if you have authentication enabled, add :secret => "your secret"
   }
 
   # Number of retries

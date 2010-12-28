@@ -29,6 +29,31 @@ module Lacquer
             'Host' => server[:host],
             'Port' => server[:port],
             'Timeout' => server[:timeout] || 5)
+          
+          if(server[:secret])
+            connection.waitfor("Match" => /^107/) do |authentication_request|
+              matchdata = /^107 \d{2}\s*(.{32}).*$/m.match(authentication_request) # Might be a bit ugly regex, but it works great!
+              salt = matchdata[1]
+              if(salt.empty?)
+                raise VarnishError, "Bad authentication request"
+              end
+              
+              digest = OpenSSL::Digest::Digest.new('sha256')
+              digest << salt
+              digest << "\n"
+              digest << server[:secret]
+              digest << "\n"
+              digest << salt
+              digest << "\n"
+              
+              connection.cmd("String" => "auth #{digest.to_s}", "Match" => /\d{3}/) do |auth_response|
+                if(!(/^200/ =~ auth_response))
+                  raise AuthenticationError, "Could not authenticate"
+                end
+              end
+            end
+          end
+          
           connection.cmd('String' => command, 'Match' => /\n\n/) {|r| response = r.split("\n").first.strip}
           connection.close
         rescue Exception => e

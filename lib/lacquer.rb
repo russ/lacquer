@@ -1,5 +1,9 @@
 require "rubygems"
 require "net/telnet"
+
+require "openssl"
+require "digest/sha2"
+
 require "active_support/core_ext"
 
 require "lacquer/configuration"
@@ -8,6 +12,7 @@ require "lacquer/varnish"
 
 module Lacquer
   class VarnishError < Exception; end # @private
+  class AuthenticationError < VarnishError; end # @private
 
   class << self
     attr_accessor :configuration

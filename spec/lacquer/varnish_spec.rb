@@ -33,6 +33,49 @@ describe "Varnish" do
         Lacquer::Varnish.new.purge('/')
       end
     end
+    
+    describe "when using authentication" do
+      after(:each) do
+        Lacquer.configuration.varnish_servers.first[:secret] = nil
+      end
+      describe "with correct secret" do
+        before(:each) do
+          Lacquer.configuration.varnish_servers.first[:secret] = "the real secret"
+        end
+
+        it "should return successfully when using correct secret" do
+          @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield('107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n')
+          @telnet_mock.stub!(:cmd).with("String" => "auth d218942acc92753db0c9fedddb32cde6158de28e903356caed1808cf0e23a15a", "Match" => /\d{3}/).and_yield('200')
+          @telnet_mock.stub!(:cmd).with("String" => "url.purge /", "Match" => /\n\n/).and_yield('200')
+        
+          lambda {
+            Lacquer::Varnish.new.purge('/')
+          }.should_not raise_error
+        end
+
+        after(:each) do
+          Lacquer.configuration.varnish_servers.first[:secret] = nil
+        end
+      end
+
+      describe "with wrong secret" do
+        before(:each) do
+          Lacquer.configuration.varnish_servers.first[:secret] = "the wrong secret"
+        end
+        it "should raise Lacquer::AuthenticationError when using wrong secret" do
+          @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield('107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n')
+          @telnet_mock.stub!(:cmd).with("String" => "auth 49725ec6723b64774a7ab918a24cba811130e99b7ac4b4c9d21ce9a8144762c8", "Match" => /\d{3}/).and_yield('107')
+          @telnet_mock.stub!(:cmd).with("url.purge /").and_yield('200')
+
+          lambda {
+            Lacquer::Varnish.new.purge('/')
+          }.should raise_error(Lacquer::VarnishError)
+        end
+        after(:each) do
+          Lacquer.configuration.varnish_servers.first[:secret] = nil
+        end
+      end
+    end
 
     describe "when connection is unsuccessful and an error handler is set" do
       before(:each) do
@@ -46,6 +89,7 @@ describe "Varnish" do
         }.should_not raise_error(Lacquer::VarnishError)
       end
     end
+    
   end
 
   describe "when sending a stats command" do
@@ -125,7 +169,7 @@ Closing CLI connection
 
   describe "when sending a purge command" do 
     it "should return successfully" do
-      @telnet_mock.stub!(:cmd).and_yield('200')
+      @telnet_mock.stub!(:cmd).with("String" => "url.purge /", "Match" => /\n\n/).and_yield('200')
       Lacquer::Varnish.new.purge('/').should be(true)
     end
   end
