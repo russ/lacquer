@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
     ".bundle/config",
     ".document",
     "Gemfile",
-    "Gemfile.lock",
     "LICENSE",
     "README.rdoc",
     "Rakefile",
