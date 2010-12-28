@@ -15,7 +15,6 @@ begin
     gem.email = "russ@bashme.org"
     gem.homepage = "http://github.com/russ/lacquer"
     gem.authors = ["Russ Smith (russ@bashme.org)", "Ryan Johns", "Garry Tan (garry@posterous.com), Gabe da Silveira (gabe@websaviour.com)", "Håkon Lerring"]
-    gem.add_development_dependency "rspec", "~> 1.3.0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
