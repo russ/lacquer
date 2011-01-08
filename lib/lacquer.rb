@@ -10,6 +10,8 @@ require "lacquer/configuration"
 require "lacquer/cache_utils"
 require "lacquer/varnish"
 
+require "lacquer/railtie" if defined?(Rails::Railtie)
+
 module Lacquer
   class VarnishError < Exception; end # @private
   class AuthenticationError < VarnishError; end # @private
