@@ -1,0 +1,7 @@
+test:
+  listen: :80
+  telnet: localhost:6082
+  sbin_path: /usr/local/sbin
+  storage: "file,#{Rails.root}/log/varnish,1GB"
+  params:
+    overflow_max: 2000

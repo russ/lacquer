@@ -1,43 +1,38 @@
 namespace :varnishd do
   
-  desc "Start a varnishd daemon using Lacquer's settings"
-  task :start => :environment do    
-    options = { 
-      "-P" => Rails.root.join('log/varnishd.pid'), 
-      "-a" => VARNISH_CONFIG[:listen], 
-      "-T" => VARNISH_CONFIG[:telnet],
-      "-s" => eval(%Q("#{VARNISH_CONFIG[:storage]}")),
-      "-f" => Rails.root.join('config/varnish.vcl'),
-    }    
-    
-    params_str = VARNISH_CONFIG[:params].map { |k, v| "-p #{k}=#{v}" }.join(" ")
-    options_str = options.map { |k, v| "#{k} #{v}" }.join(" ")
-    
-    cmd = "#{VARNISH_CONFIG[:sbin_path]}/varnishd #{options_str} #{params_str}"
-    puts "** [VARNISH] Booting #{cmd}"  
-    `#{cmd}`
+  desc "Start varnishd daemon using Lacquer's settings"
+  task :start => :environment do
+    Lacquer::Varnishd.new.start
   end
   
   desc "Stop varnishd daemon using Lacquer's settings"
   task :stop => :environment do
-    pidfile = Rails.root.join('log/varnishd.pid')
-    
-    if pidfile.exist?
-      pid = pidfile.read
-      cmd = "kill #{pid}"
-      puts "** [VARNISH] Killing process with pid #{pid}"
-      `#{cmd}`
-      pidfile.delete      
+    Lacquer::Varnishd.new.stop
+  end
+  
+  desc "Running status of varnishd daemon using Lacquer's settings"
+  task :status => :environment do
+    if Lacquer::Varnishd.new.running?
+      puts "Varnishd is running"
     else
-      puts "** [VARNISH] pidfile not found"
+      puts "Varnishd is not running"
     end
-    
+  end
+  
+  desc "Restart varnishd daemon using Lacquer's settings"
+  task :restart => :environment do
+    varnishd = Lacquer::Varnishd.new
+    if varnishd.running?
+      varnishd.stop
+      sleep(1)
+    end
+    varnishd.start
   end
   
   desc "Purge ALL urls from Varnish"
   task :global_purge => :environment do
 
-    #It WILL timeout, just accept it. Varnish does not have a command prompt.
+    # It WILL timeout, just accept it. Varnish does not have a command prompt.
     require 'net/telnet'
     @result = ""
     begin

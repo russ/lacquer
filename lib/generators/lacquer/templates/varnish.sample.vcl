@@ -1,6 +1,6 @@
 backend default {
   .host = "0.0.0.0";
-  .port = "10000";
+  .port = "3000";
 }
 
 # Handling of requests that are received from clients.
@@ -14,17 +14,17 @@ sub vcl_recv {
       req.request != "TRACE" &&
       req.request != "OPTIONS" &&
       req.request != "DELETE") {
-    pipe;
+    return(pipe);
   }
 
   # Pass requests that are not GET or HEAD
   if (req.request != "GET" && req.request != "HEAD") {
-    pass;
+    return(pass);
   }
 
   # Pass requests that we know we aren't caching
-  if (req.url ~ "^/admin") {
-    pass;
+  if (req.url ~ "^/admin" || req.url ~ "^/backend") {
+    return(pass);
   }
 
   # Handle compression correctly. Varnish treats headers literally, not
@@ -48,7 +48,7 @@ sub vcl_recv {
   unset req.http.Cookie;
   unset req.http.Authorization;
   set req.grace = 30s;
-  lookup;
+  return(lookup);
 }
 
 # Called when entering pipe mode
@@ -57,34 +57,34 @@ sub vcl_pipe {
   # requests from the client will also be piped through and
   # left untouched by varnish. We don't want that.
   set req.http.connection = "close";
-  pipe;
+  return(pipe);
 }
 
 # Called when the requested object has been retrieved from the
 # backend, or the request to the backend has failed
 sub vcl_fetch {
   # Do not cache the object if the backend application does not want us to.
-  if (obj.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
-    pass;
+  if (beresp.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
+    return(pass);
   }
 
   # Do not cache the object if the status is not in the 200s
-  if (obj.status >= 300) {
+  if (beresp.status >= 300) {
     # Remove the Set-Cookie header
-    remove obj.http.Set-Cookie;
-    pass;
+    remove beresp.http.Set-Cookie;
+    return(pass);
   }
 
   # Everything below here should be cached
 
   # Remove the Set-Cookie header
-  remove obj.http.Set-Cookie;
+  remove beresp.http.Set-Cookie;
 
   # Set the grace time
-  set obj.grace = 30s;
+  set beresp.grace = 30s;
 
   # Deliver the object
-  deliver;
+  return(deliver);
 }
 
 # Called before the response is sent back to the client

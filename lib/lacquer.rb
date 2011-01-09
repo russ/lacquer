@@ -9,6 +9,7 @@ require "active_support/core_ext"
 require "lacquer/configuration"
 require "lacquer/cache_utils"
 require "lacquer/varnish"
+require "lacquer/varnishd"
 
 require "lacquer/railtie" if defined?(Rails::Railtie)
 
