@@ -31,21 +31,7 @@ namespace :varnishd do
   
   desc "Purge ALL urls from Varnish"
   task :global_purge => :environment do
-
-    # It WILL timeout, just accept it. Varnish does not have a command prompt.
-    require 'net/telnet'
-    @result = ""
-    begin
-      localhost = Net::Telnet::new("Host" => "localhost", "Port" => 6082, "Timeout" => 5)
-      localhost.cmd("url.purge .*") { |c| @result = c}
-    rescue Exception
-      if @result.include? ("200 0")
-        puts "varnish purged OK."
-      else
-        raise "Varnish not purged."
-      end
-    end
-    
+    Lacquer::Varnish.new.purge('.*')
   end
     
 end

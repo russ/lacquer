@@ -27,6 +27,11 @@ Capistrano::Configuration.instance.load do
       fetch(:varnishd_role, :varnish)
     end
     
+    desc "Purge ALL urls from Varnish"
+    task :global_purge, :roles => lambda { roles } do
+      run "cd #{current_path};#{rails_env} #{rake} varnishd:global_purge"
+    end
+    
     desc "Stop the varnishd process"
     task :stop, :roles => lambda { roles } do
       run "cd #{current_path};#{rails_env} #{rake} varnishd:stop"
