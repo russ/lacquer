@@ -5,7 +5,8 @@ Rails drop in for Varnish support.
 == Install
 Basic installation
 
-  sudo gem install lacquer
+  sudo gem install lacquer  
+  rails generate lacquer:install
 
 config/initializers/lacquer.rb
 
@@ -36,7 +37,33 @@ app/controllers/application_controller.rb
   class ApplicationController < ActionController::Base
     include Lacquer::CacheUtils
   end
+  
+config/varnishd.yml
 
+  development:
+    listen: localhost:3001
+    telnet: localhost:6082
+    sbin_path: /usr/local/sbin
+    storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
+    
+  test:
+    listen: localhost:3002
+    telnet: localhost:6083
+    sbin_path: /usr/local/sbin
+    storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
+
+  production:
+    listen: :80
+    telnet: localhost:6082
+    sbin_path: /usr/local/sbin
+    storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
+    params:
+      overflow_max: 2000
+      thread_pool_add_delay: 2
+      thread_pools: 4             # <Number of cpu cores>
+      thread_pool_min: 200        # <800/number of cpu cores>
+      thread_pool_max: 4000
+  
 == Usage
 
 To set a custom ttl for a controller:
@@ -57,6 +84,14 @@ Clearing the cache:
         post_path(@post))
     end
   end
+  
+Control varnishd with the following rake tasks
+
+  rake varnishd:start
+  rake varnishd:stop
+  rake varnishd:restart
+  rake varnishd:status
+  rake varnishd:global_purge  
 
 == Gotchas
 
