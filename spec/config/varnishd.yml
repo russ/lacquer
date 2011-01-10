@@ -3,5 +3,7 @@ test:
   telnet: localhost:6082
   sbin_path: /usr/local/sbin
   storage: "file,#{Rails.root}/log/varnish,1GB"
+  working_dir: ""
+  user: "deploy"
   params:
     overflow_max: 2000
