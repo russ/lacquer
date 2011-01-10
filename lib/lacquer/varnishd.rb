@@ -74,15 +74,15 @@ module Lacquer
     end
 
     def options
-      { 
-        "-P" => pid_file, 
-        "-a" => listen, 
-        "-T" => telnet,
-        "-n" => working_dir,
-        "-u" => user,
-        "-s" => eval(%Q("#{storage}")),
-        "-f" => vcl_script_path,
-      }    
+      opt = {}
+      opt["-P"] = pid_file
+      opt["-a"] = listen
+      opt["-T"] = telnet        if telnet.present?
+      opt["-n"] = working_dir   if working_dir.present?
+      opt["-u"] = user          if user.present?
+      opt["-s"] = eval(%Q("#{storage}"))
+      opt["-f"] = vcl_script_path
+      opt
     end
     
     def params
