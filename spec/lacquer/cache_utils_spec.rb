@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '../../spec_helper')
+require 'lacquer/delayed_job_job'
 
 describe "Lacquer" do
   before(:each) do
@@ -17,7 +18,7 @@ describe "Lacquer" do
       end
 
       it "sends commands to varnish instantly" do
-        @varnish_stub.should_receive(:purge).twice
+        @varnish_stub.should_receive(:purge).with('/', '/blog/posts').once
         @controller.clear_cache_for('/', '/blog/posts')
       end
 
@@ -30,8 +31,8 @@ describe "Lacquer" do
     describe "when backend is :delayed_job" do
       it "sends commands to a delayed_job queue" do
         Lacquer.configuration.job_backend = :delayed_job
-
-        Delayed::Job.should_receive(:enqueue).twice
+        Lacquer::DelayedJobJob.should_receive(:new).with(['/', '/blog/posts'])
+        Delayed::Job.should_receive(:enqueue).once
         @controller.clear_cache_for('/', '/blog/posts')
       end
     end
@@ -40,7 +41,7 @@ describe "Lacquer" do
       it "sends commands to a resque queue" do
         Lacquer.configuration.job_backend = :resque
 
-        Resque.should_receive(:enqueue).twice
+        Resque.should_receive(:enqueue).once
         @controller.clear_cache_for('/', '/blog/posts')
       end
     end

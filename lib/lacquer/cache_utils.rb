@@ -26,17 +26,15 @@ module Lacquer
     #
     # clear_cache_for(root_path, blog_posts_path, '/other/content/*')
     def clear_cache_for(*paths)
-      paths.each do |path|
-        case Lacquer.configuration.job_backend
-        when :delayed_job
-          require 'lacquer/delayed_job_job'
-          Delayed::Job.enqueue(Lacquer::DelayedJobJob.new(path))
-        when :resque
-          require 'lacquer/resque_job'
-          Resque.enqueue(Lacquer::ResqueJob, path)
-        when :none
-          Varnish.new.purge(path)
-        end
+      case Lacquer.configuration.job_backend
+      when :delayed_job
+        require 'lacquer/delayed_job_job'
+        Delayed::Job.enqueue(Lacquer::DelayedJobJob.new(paths))
+      when :resque
+        require 'lacquer/resque_job'
+        Resque.enqueue(Lacquer::ResqueJob, paths)
+      when :none
+        Varnish.new.purge(*paths)
       end
     end
     

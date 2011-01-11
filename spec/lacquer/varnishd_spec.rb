@@ -42,6 +42,7 @@ describe "Varnishd" do
     Lacquer::Varnishd.stub!(:new).and_return do |*args|
       lacquer = new_method.call(*args)
       lacquer.should_receive(:execute).with(%r[/opt/varnishd/sbin.*-P.*log/varnishd.test.pid])
+      lacquer.stub!(:log)
       lacquer
     end
     Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin", "params" => { "overflow_max" => 2000 }).start

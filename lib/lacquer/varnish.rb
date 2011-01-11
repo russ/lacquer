@@ -12,10 +12,14 @@ module Lacquer
     end
 
     # Sends the command 'url.purge *path*'
-    def purge(path)
-      send_command('url.purge ' << path).all? do |result|
+    def purge(*paths)      
+      send_command(purge_url_command_for(paths)).all? do |result|
         result =~ /200/
       end
+    end
+    
+    def purge_url_command_for(paths)
+      paths.map { |path| 'url.purge ' << path }.join("\n")
     end
 
     # Sends commands over telnet to varnish servers listed in the config.
@@ -55,7 +59,7 @@ module Lacquer
           end
           
           connection.cmd('String' => command, 'Match' => /\n\n/) {|r| response = r.split("\n").first.strip}
-          connection.close
+          connection.close if connection.respond_to?(:close)
         rescue Exception => e
           if retries < Lacquer.configuration.retries
             retry

@@ -2,8 +2,8 @@ module Lacquer
   class ResqueJob
     @queue = :lacquer
 
-    def self.perform(url)
-      Varnish.new.purge(url)
+    def self.perform(urls)
+      Varnish.new.purge(*urls)
     end
   end
 end
