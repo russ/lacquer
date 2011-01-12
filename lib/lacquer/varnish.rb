@@ -19,7 +19,7 @@ module Lacquer
     end
     
     def purge_url_command_for(paths)
-      paths.map { |path| 'url.purge ' << path }.join("\n")
+      paths.map { |path| 'url.purge ' << path.gsub('\\', '\\\\\\') }.join("\n")
     end
 
     # Sends commands over telnet to varnish servers listed in the config.
