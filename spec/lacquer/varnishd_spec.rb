@@ -38,6 +38,10 @@ describe "Varnishd" do
   end
   
   it "starts varnishd with args and params" do
+    Lacquer::Varnishd.new("backend" => "0.0.0.0:8080").args.should include("-b 0.0.0.0:8080")
+  end
+
+  it "starts varnishd with args and params" do
     new_method = Lacquer::Varnishd.method(:new)
     Lacquer::Varnishd.stub!(:new).and_return do |*args|
       lacquer = new_method.call(*args)

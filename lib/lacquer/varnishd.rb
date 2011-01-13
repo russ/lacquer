@@ -1,6 +1,6 @@
 module Lacquer
   class Varnishd
-    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :params
+    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :backend, :params
     
     cattr_accessor :started_check_delay, :vcl_script_filename
     self.started_check_delay = 1
@@ -23,7 +23,8 @@ module Lacquer
     end
     
     def initialize(settings = self.class.config)
-      self.listen, self.telnet, self.sbin_path, self.storage, self.working_dir, self.user, self.params = settings.values_at("listen", "telnet", "sbin_path", "storage", "working_dir", "user", "params")
+      self.listen, self.telnet, self.backend, self.sbin_path, self.storage, self.working_dir, self.user, self.params =
+        settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params")
     end
     
     def varnishd_cmd
@@ -82,6 +83,7 @@ module Lacquer
       opt["-u"] = user          if user.present?
       opt["-s"] = eval(%Q("#{storage}"))
       opt["-f"] = vcl_script_path
+      opt["-b"] = backend       if backend.present?
       opt
     end
     

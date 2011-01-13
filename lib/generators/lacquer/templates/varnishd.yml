@@ -1,18 +1,21 @@
 development:
   listen: localhost:3001
   telnet: localhost:6082
+  backend: localhost:3000
   sbin_path: /usr/local/sbin
   storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
     
 test:
   listen: localhost:3002
   telnet: localhost:6083
+  backend: localhost:3000
   sbin_path: /usr/local/sbin
   storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
 
 production:
   listen: :80
   telnet: localhost:6082
+  backend: backend_server:8080
   sbin_path: /usr/local/sbin
   storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
   params:
