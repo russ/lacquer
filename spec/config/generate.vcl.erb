@@ -1,0 +1,16 @@
+backend default {
+  .host = "<%= backend.split(':').first %>";
+  .port = "<%= backend.split(':').last %>";
+}
+
+sub vcl_recv {
+  set req.backend = default;
+  unset req.http.Cookie;
+  set req.grace = 30m;
+}
+
+sub vcl_fetch {
+  unset beresp.http.Set-Cookie;
+  set beresp.grace = 30m;
+}
+

@@ -27,18 +27,19 @@ module Lacquer
         settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params")
     end
     
-    def varnishd_cmd
-      Pathname.new(sbin_path).join('varnishd')
+    def render_vcl      
+      require 'erubis'
+      eruby = Erubis::Eruby.new(erb_vcl_script_filename.read)
+      eruby.result(binding)
     end
     
-    def pid_file
-      self.class.root_path.join("log/varnishd.#{self.class.env}.pid")
-    end
-    
-    def vcl_script_path
-      vcl_script = self.class.root_path.join(self.class.vcl_script_filename)
-      fail "VCL file not found: #{vcl_script} (copy from config/varnish.sample.vcl)" unless vcl_script.exist?
-      vcl_script
+    def generate_vcl
+      if erb_vcl_script_filename.exist?
+        log "#{erb_vcl_script_filename} found rendering to #{vcl_script_filename}"
+        File.open(vcl_script_filename, "w") do |vcl|
+          vcl.write(render_vcl)
+        end
+      end
     end
     
     def start
@@ -46,6 +47,7 @@ module Lacquer
         log("Already running")
         return
       end
+      generate_vcl
       execute("#{varnishd_cmd} #{args} #{params_args}")
       sleep(self.class.started_check_delay)
       log("Failed to start varnishd daemon") unless running?
@@ -82,8 +84,7 @@ module Lacquer
       opt["-n"] = working_dir   if working_dir.present?
       opt["-u"] = user          if user.present?
       opt["-s"] = eval(%Q("#{storage}"))
-      opt["-f"] = vcl_script_path
-      opt["-b"] = backend       if backend.present?
+      opt["-f"] = vcl_script_filename
       opt
     end
     
@@ -92,6 +93,22 @@ module Lacquer
     end
     
     protected
+    
+    def varnishd_cmd
+      Pathname.new(sbin_path).join('varnishd')
+    end
+    
+    def pid_file
+      self.class.root_path.join("log/varnishd.#{self.class.env}.pid")
+    end
+    
+    def vcl_script_filename
+      self.class.root_path.join(self.class.vcl_script_filename)
+    end
+    
+    def erb_vcl_script_filename
+      vcl_script_filename.sub_ext('.vcl.erb')
+    end
     
     def log(message)
       puts "** [#{self.class.name}] #{message}"

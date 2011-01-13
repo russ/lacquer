@@ -9,6 +9,16 @@ describe "Varnishd" do
     Lacquer::Varnishd.stub!(:root_path).and_return(spec_root)
   end
   
+  def executes_with(regexp)
+    new_method = Lacquer::Varnishd.method(:new)
+    Lacquer::Varnishd.stub!(:new).and_return do |*args|
+      varnishd = new_method.call(*args)
+      varnishd.should_receive(:execute).with(regexp)
+      varnishd.stub!(:log)
+      varnishd
+    end
+  end
+  
   it "passes settings in the initailizer" do
     Lacquer::Varnishd.new("listen" => ":80").listen.should == ":80"
   end
@@ -22,15 +32,17 @@ describe "Varnishd" do
   end
   
   it "returns full path to varnishd" do
-    Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin").varnishd_cmd.to_s.should == "/opt/varnishd/sbin/varnishd"    
+    executes_with(%r[/opt/varnishd/sbin/varnishd])
+    Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin").start
   end
   
   it "returns pid file" do
-    Lacquer::Varnishd.new.pid_file.to_s.should =~ /log\/varnishd.test.pid/
+    executes_with(/log\/varnishd.test.pid/)
+    Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin").start
   end
   
   it "returns params as string" do
-    Lacquer::Varnishd.new("params" => { "overflow_max" => 2000, "thread_pool_add_delay" => 2 }).params_args.should == "-p overflow_max=2000 -p thread_pool_add_delay=2"    
+    Lacquer::Varnishd.new("params" => { "max" => 2000, "add" => 2 }).params_args.should == "-p max=2000 -p add=2"    
   end
   
   it "returns listen arg as string" do
@@ -38,17 +50,7 @@ describe "Varnishd" do
   end
   
   it "starts varnishd with args and params" do
-    Lacquer::Varnishd.new("backend" => "0.0.0.0:8080").args.should include("-b 0.0.0.0:8080")
-  end
-
-  it "starts varnishd with args and params" do
-    new_method = Lacquer::Varnishd.method(:new)
-    Lacquer::Varnishd.stub!(:new).and_return do |*args|
-      lacquer = new_method.call(*args)
-      lacquer.should_receive(:execute).with(%r[/opt/varnishd/sbin.*-P.*log/varnishd.test.pid])
-      lacquer.stub!(:log)
-      lacquer
-    end
+    executes_with(%r[/opt/varnishd/sbin.*-P.*log/varnishd.test.pid])
     Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin", "params" => { "overflow_max" => 2000 }).start
   end
   
@@ -57,6 +59,13 @@ describe "Varnishd" do
     expect {
       Lacquer::Varnishd.new.vcl_script_path
     }.to raise_error
+  end
+  
+  it "renders vcl file when erb is present" do
+    Lacquer::Varnishd.stub!(:vcl_script_filename).and_return("config/generate.vcl")
+    result = Lacquer::Varnishd.new.render_vcl
+    result.should include('.host = "0.0.0.0"')
+    result.should include('.port = "3000"')
   end
   
 end

@@ -30,18 +30,21 @@ Gem::Specification.new do |s|
     "lib/generators/lacquer/install_generator.rb",
     "lib/generators/lacquer/templates/initializer.rb",
     "lib/generators/lacquer/templates/varnish.sample.vcl",
+    "lib/generators/lacquer/templates/varnishd.yml",
     "lib/lacquer.rb",
     "lib/lacquer/cache_utils.rb",
     "lib/lacquer/configuration.rb",
     "lib/lacquer/delayed_job_job.rb",
     "lib/lacquer/resque_job.rb",
     "lib/lacquer/varnish.rb",
+    "lib/lacquer/varnishd.rb",
     "lib/lacquer/tasks.rb",
     "lib/lacquer/railtie.rb",
     "spec/lacquer/cache_utils_spec.rb",
     "spec/lacquer/delayed_job_job_spec.rb",
     "spec/lacquer/resque_job_spec.rb",
     "spec/lacquer/varnish_spec.rb",
+    "spec/lacquer/varnishd_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/russ/lacquer}
@@ -53,6 +56,7 @@ Gem::Specification.new do |s|
     "spec/lacquer/delayed_job_job_spec.rb",
     "spec/lacquer/resque_job_spec.rb",
     "spec/lacquer/varnish_spec.rb",
+    "spec/lacquer/varnishd_spec.rb",
     "spec/spec_helper.rb"
   ]
 
@@ -66,6 +70,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
       s.add_runtime_dependency(%q<rake>, [">= 0"])
       s.add_runtime_dependency(%q<yard>, [">= 0"])
+      s.add_runtime_dependency(%q<erubis>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["~> 2.0"])
     else
       s.add_dependency(%q<activesupport>, ["~> 3.0"])
@@ -73,6 +78,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<rake>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
+      s.add_dependency(%q<erubis>, [">= 0"])
       s.add_dependency(%q<rspec>, ["~> 2.0"])
     end
   else
@@ -81,6 +87,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rake>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
+    s.add_dependency(%q<erubis>, [">= 0"])
     s.add_dependency(%q<rspec>, ["~> 2.0"])
   end
 end
