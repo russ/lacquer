@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
     "lib/generators/lacquer/templates/varnishd.yml",
     "lib/lacquer.rb",
     "lib/lacquer/cache_utils.rb",
+    "lib/lacquer/cache_control.rb",
     "lib/lacquer/configuration.rb",
     "lib/lacquer/delayed_job_job.rb",
     "lib/lacquer/resque_job.rb",
