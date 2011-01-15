@@ -24,7 +24,7 @@ module Lacquer
     def to_vcl
       STORE.map do |group, options|
         options.map do |option|
-          "req.url ~ #{(option[:url] % option[:args])}"          
+          %Q[req.url ~ "#{(option[:url] % option[:args])}"]
         end
       end.flatten.join(" ||\n")
     end
