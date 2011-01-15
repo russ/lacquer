@@ -12,16 +12,14 @@ module Lacquer
     end
 
     # Sends the command 'url.purge *path*'
-    def purge(*paths)      
-      send_command(purge_url_command_for(paths)).all? do |result|
-        result =~ /200/
+    def purge(*paths)
+      paths.all? do |path|
+        send_command('url.purge ' << path.gsub('\\', '\\\\\\')).all? do |result|
+          result =~ /200/
+        end
       end
     end
     
-    def purge_url_command_for(paths)
-      paths.map { |path| 'url.purge ' << path.gsub('\\', '\\\\\\') }.join("\n")
-    end
-
     # Sends commands over telnet to varnish servers listed in the config.
     def send_command(command)
       Lacquer.configuration.varnish_servers.collect do |server|
