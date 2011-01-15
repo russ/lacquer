@@ -8,7 +8,7 @@ module Lacquer
       end
 
       def copy_vcl
-        copy_file("varnish.sample.vcl", "config/varnish.sample.vcl")
+        copy_file("varnish.vcl.erb", "config/varnish.vcl.erb")
       end
       
       def copy_varnishd_config

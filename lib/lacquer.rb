@@ -10,7 +10,6 @@ require "lacquer/configuration"
 require "lacquer/cache_utils"
 require "lacquer/varnish"
 require "lacquer/varnishd"
-require "lacquer/cache_control"
 
 require "lacquer/railtie" if defined?(Rails::Railtie)
 
@@ -20,7 +19,6 @@ module Lacquer
 
   class << self
     attr_accessor :configuration
-    attr_accessor :cache_control
 
     # Call this method to modify defaults in your initailizers.
     #
@@ -32,5 +30,4 @@ module Lacquer
       yield(configuration)
     end
   end
-  self.cache_control ||= CacheControl.new
 end

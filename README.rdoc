@@ -63,6 +63,88 @@ config/varnishd.yml
       thread_pools: 4             # <Number of cpu cores>
       thread_pool_min: 200        # <800/number of cpu cores>
       thread_pool_max: 4000
+
+If only some urls of the application should be cached by varnish, Lacquer::CacheControl will be helpful.
+
+config/initializers/caches.rb
+
+  require "lacquer/cache_control"
+
+  Lacquer.cache_control.configure do |config|
+    config.register :static,              :url => "^/images",                                           
+                                          :expires_in => "365d"
+                                        
+    config.register :static,              :url => "^/stylesheets",
+                                          :expires_in => "365d"
+                                        
+    config.register :static,              :url => "^/javascripts",                                       
+                                          :expires_in => "365d"
+  
+    config.register :class_section,       :url => "^(/[a-z]{2})?/(info_screens|class_sections)/%s.*$",   
+                                          :args => "[0-9]+", 
+                                          :expires_in => "1m"
+                                        
+    config.register :open_scoring,        :url => "^(/[a-z]{2})?/class_sections/%s/open_scoring.*$",
+                                          :args => "[0-9]+",
+                                          :expires_in => "1m"
+                                        
+  end
+
+In the sweeper we can do something like this
+
+  class_section = ClassSection.find(1)
+  Lacquer.cache_control.purge(:open_scoring, class_section) 
+  
+This will purge "^(/[a-z]{2})?/class_sections/1/open_scoring.*$" (/sv/class_sections/1/open_scoring.js, /sv/class_sections/1/open_scoring.html)
+  
+The varnish.vcl is preprocssed when starting varnishd with the rake tasks
+
+  rake varnishd:start
+  
+config/varnish.vcl.erb
+
+  sub vcl_recv {
+    # Lookup requests that we know should be cached
+    if (<%= Lacquer.cache_control.to_vcl_conditions %>) {    
+      # Clear cookie and authorization headers, set grace time, lookup in the cache
+      unset req.http.Cookie;
+      unset req.http.Authorization;
+      return(lookup);
+    }
+    
+    # Generates
+    #
+    # if(req.url ~ "^/images" || 
+    #    req.url ~ "^/stylesheets" || 
+    #    req.url ~ "^/javascripts" || 
+    #    req.url ~ "^(/[a-z]{2})?/(info_screens|class_sections)/[0-9]+.*$" || 
+    #    req.url ~ "^(/[a-z]{2})?/class_sections/[0-9]+/open_scoring.*$") {
+    #    unset req.http.Cookie;
+    #    unset req.http.Authorization;
+    #    return(lookup);         
+    # }
+  }
+
+  sub vcl_fetch {
+    <%= Lacquer.cache_control.to_vcl_override_ttl_urls %>
+    
+    # Generates
+    #
+    # if(req.url ~ "^/images" || req.url ~ "^/stylesheets" || req.url ~ "^/javascripts") {
+    #   unset beresp.http.Set-Cookie;
+    #   set beresp.ttl = 365d;
+    #   return(deliver);
+    # }
+    #
+    # if(req.url ~ "^(/[a-z]{2})?/(info_screens|class_sections)/[0-9]+.*$" || 
+    #   req.url ~ "^(/[a-z]{2})?/class_sections/[0-9]+/open_scoring.*$") {
+    #   unset beresp.http.Set-Cookie;
+    #   set beresp.ttl = 1m;
+    #   return(deliver);
+    # }
+  }
+ 
+This makes it much simpler to perform cacheing, it's only setuped in one place, purge it or just let it expire.
   
 == Usage
 

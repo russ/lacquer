@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
     "lib/generators/lacquer/USAGE",
     "lib/generators/lacquer/install_generator.rb",
     "lib/generators/lacquer/templates/initializer.rb",
-    "lib/generators/lacquer/templates/varnish.sample.vcl",
+    "lib/generators/lacquer/templates/varnish.vcl.erb",
     "lib/generators/lacquer/templates/varnishd.yml",
     "lib/lacquer.rb",
     "lib/lacquer/cache_utils.rb",
