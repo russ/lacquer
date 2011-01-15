@@ -21,8 +21,6 @@ module Lacquer
   class << self
     attr_accessor :configuration
     attr_accessor :cache_control
-    
-    self.cache_control ||= CacheControl.new
 
     # Call this method to modify defaults in your initailizers.
     #
@@ -34,4 +32,5 @@ module Lacquer
       yield(configuration)
     end
   end
+  self.cache_control ||= CacheControl.new
 end

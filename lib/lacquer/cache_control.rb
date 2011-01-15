@@ -14,7 +14,11 @@ module Lacquer
     end
     
     def purge(group, *args)
-      clear_cache_for(*STORE[group].map { |options| options[:url] % args.map { |arg| arg.to_param } })      
+      clear_cache_for(*urls_for(group, *args))      
+    end
+    
+    def urls_for(group, *args)
+      STORE[group].map { |options| options[:url] % args.map { |arg| arg.to_param } }
     end
   
     def to_vcl
