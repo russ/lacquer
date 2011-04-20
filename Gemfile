@@ -7,6 +7,6 @@ gem "rake"
 gem "yard"
 gem "erubis"
 
-group :development do
-    gem "rspec", "~> 2.0"
+group :test do
+  gem "rspec", "~> 2.5", :require => false
 end
