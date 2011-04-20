@@ -8,6 +8,7 @@ require "active_support/core_ext"
 
 require "lacquer/configuration"
 require "lacquer/cache_utils"
+require "lacquer/cache_control"
 require "lacquer/varnish"
 require "lacquer/varnishd"
 
