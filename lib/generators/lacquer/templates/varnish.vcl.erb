@@ -23,44 +23,38 @@ sub vcl_recv {
      set req.grace = 1h;
   }  
   
-  # Lookup requests that we know should be cached
-  if (<%= Lacquer.cache_control.to_vcl_conditions %>) {
-      
-    # Pass requests that are not GET or HEAD
-    if (req.request != "GET" && req.request != "HEAD") {
-      return(pass);
-    }
-    
-    # Applicaiton specific setting
-    # Strip differentiator from live and changed.js
-    if (req.url ~ "\?differentiator") {
-       set req.url = regsub(req.url, "\?.*$", "");
-    }
-  
-    # Handle compression correctly. Varnish treats headers literally, not
-    # semantically. So it is very well possible that there are cache misses
-    # because the headers sent by different browsers aren't the same.
-    # @see: http://varnish.projects.linpro.no/wiki/FAQ/Compression
-    if (req.http.Accept-Encoding) {
-      if (req.http.Accept-Encoding ~ "gzip") {
-        # if the browser supports it, we'll use gzip
-        set req.http.Accept-Encoding = "gzip";
-      } elsif (req.http.Accept-Encoding ~ "deflate") {
-        # next, try deflate if it is supported
-        set req.http.Accept-Encoding = "deflate";
-      } else {
-        # unknown algorithm. Probably junk, remove it
-        remove req.http.Accept-Encoding;
-      }
-    }
-
-    # Clear cookie and authorization headers, set grace time, lookup in the cache
-    unset req.http.Cookie;
-    unset req.http.Authorization;
-    return(lookup);
+  # Pass requests that are not GET or HEAD
+  if (req.request != "GET" && req.request != "HEAD") {
+    return(pass);
   }
   
-  return(pipe);
+  # Applicaiton specific setting
+  # Strip differentiator from live and changed.js
+  if (req.url ~ "\?differentiator") {
+     set req.url = regsub(req.url, "\?.*$", "");
+  }
+  
+  # Handle compression correctly. Varnish treats headers literally, not
+  # semantically. So it is very well possible that there are cache misses
+  # because the headers sent by different browsers aren't the same.
+  # @see: http://varnish.projects.linpro.no/wiki/FAQ/Compression
+  if (req.http.Accept-Encoding) {
+    if (req.http.Accept-Encoding ~ "gzip") {
+      # if the browser supports it, we'll use gzip
+      set req.http.Accept-Encoding = "gzip";
+    } elsif (req.http.Accept-Encoding ~ "deflate") {
+      # next, try deflate if it is supported
+      set req.http.Accept-Encoding = "deflate";
+    } else {
+      # unknown algorithm. Probably junk, remove it
+      remove req.http.Accept-Encoding;
+    }
+  }
+
+  # Clear cookie and authorization headers, set grace time, lookup in the cache
+  unset req.http.Cookie;
+  unset req.http.Authorization;
+  return(lookup);
 }
 
 # Called when entering pipe mode
@@ -85,8 +79,6 @@ sub vcl_fetch {
     return(pass);
   }
   
-<%= Lacquer.cache_control.to_vcl_override_ttl_urls %>
-
   # Do not cache the object if the backend application does not want us to.
   if (beresp.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
     return(pass);
