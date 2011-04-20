@@ -28,12 +28,6 @@ sub vcl_recv {
     return(pass);
   }
   
-  # Applicaiton specific setting
-  # Strip differentiator from live and changed.js
-  if (req.url ~ "\?differentiator") {
-     set req.url = regsub(req.url, "\?.*$", "");
-  }
-  
   # Handle compression correctly. Varnish treats headers literally, not
   # semantically. So it is very well possible that there are cache misses
   # because the headers sent by different browsers aren't the same.
