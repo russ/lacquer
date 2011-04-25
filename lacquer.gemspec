@@ -5,9 +5,9 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lacquer}
-  s.version = "0.4.2"
+  s.version = "0.5.0.beta1"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Russ Smith (russ@bashme.org)", "Ryan Johns", "Garry Tan (garry@posterous.com), Gabe da Silveira (gabe@websaviour.com)", "Håkon Lerring"]
   s.date = %q{2011-04-25}
   s.description = %q{Rails drop in for Varnish support.}
