@@ -3,17 +3,17 @@
 Capistrano::Configuration.instance(:must_exit).load do
   _cset(:lacquer_roles) { :web }
 
-  after "deploy:web:disable", "varnish:global_purge"
-  after "deploy:web:enable", "varnish:global_purge"
-  after "deploy:rollback", "varnish:global_purge"
-  after "deploy:rollback", "varnish:restart"
-  after "deploy:update", "varnish:restart"
+  after "deploy:web:disable", "lacquer:global_purge"
+  after "deploy:web:enable", "lacquer:global_purge"
+  after "deploy:rollback", "lacquer:global_purge"
+  after "deploy:rollback", "lacquer:restart"
+  after "deploy:update", "lacquer:restart"
 
   namespace :lacquer do
     %w( start stop restart global_purge status ).each do |name|
       task name.to_sym, :roles => lacquer_roles do
         next if find_servers_for_task(current_task).empty?
-        Rake::Task["varnishd:#{name}"].invoke
+        run "cd #{current_path} && #{rake} varnishd:#{name}"
       end
     end
   end
