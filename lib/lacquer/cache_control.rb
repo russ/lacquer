@@ -54,6 +54,14 @@ module Lacquer
       }
       CODE
     end
+
+    def to_vcl_pipe_urls
+      <<-CODE.strip_heredoc
+      if(#{to_vcl_conditions(urls_by(:pipe))}) {
+        return(pipe);
+      }
+      CODE
+    end
     
   protected
     

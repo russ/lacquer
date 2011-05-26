@@ -39,6 +39,14 @@ describe Lacquer::CacheControl do
       pass_urls.should include('if(req.url ~ "^/admin")')
       pass_urls.should include('return(pass)')
     end
+
+    it "returns vcl for pipe urls" do
+      cache_control = described_class.new
+      cache_control.register :pipe, :url => "*.mp4$"
+      pass_urls = cache_control.to_vcl_pipe_urls
+      pass_urls.should include('if(req.url ~ "*.mp4$")')
+      pass_urls.should include('return(pipe)')
+    end
     
     it "returns vcl for override ttl on beresp" do
       cache_control = described_class.new
