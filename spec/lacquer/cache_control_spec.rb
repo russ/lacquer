@@ -2,9 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '../../spec_helper')
 require 'lacquer/cache_control'
 
 describe Lacquer::CacheControl do
-  
   describe "#register" do
-    
     it "persists cache settings for url" do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/class_sections/%s.*$", :args => "[0-9]+"
@@ -12,21 +10,17 @@ describe Lacquer::CacheControl do
       cache_control.store.first[:url].should    == "^/sv/class_sections/%s.*$"
       cache_control.store.first[:args].should   == ["[0-9]+"]
     end
-    
   end
   
   describe "#urls_for" do
-    
     it "returns urls to expire for object" do      
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/class_sections/%s.*$", :args => "[0-9]+"
       cache_control.urls_for(:class_section, mock("ClassSection", :to_param => 1)).should == ["^/sv/class_sections/1.*$"]
     end
-    
   end
 
   context "vcl" do
-    
     it "returns all urls as vcl conditions" do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/class_sections/%s.*$", :args => "[0-9]+"
@@ -37,12 +31,14 @@ describe Lacquer::CacheControl do
       conditions.should include("||")
       conditions.should include("req.url ~ \"^/sv/info_screens/[0-9]+.*$\"")
     end
-    
-    # if (req.url ~ "^/images" || req.url ~ "^/stylesheets" || req.url ~ "^/javascripts") {
-    #  unset beresp.http.Set-Cookie;
-    #  set beresp.ttl = 7d;
-    #  return(deliver);
-    # }  
+
+    it "returns vcl for pass urls" do
+      cache_control = described_class.new
+      cache_control.register :pass, :url => "^/admin"
+      pass_urls = cache_control.to_vcl_pass_urls
+      pass_urls.should include('if(req.url ~ "^/admin")')
+      pass_urls.should include('return(pass)')
+    end
     
     it "returns vcl for override ttl on beresp" do
       cache_control = described_class.new
@@ -66,7 +62,5 @@ describe Lacquer::CacheControl do
       override_ttl.should include('set beresp.ttl = 2d')
       override_ttl.should_not include('info_screen')
     end
-    
   end
-  
 end

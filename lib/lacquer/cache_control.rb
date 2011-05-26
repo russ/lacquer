@@ -15,7 +15,7 @@ module Lacquer
     def register(group, options = {})
       options[:group]  = group
       options[:args]   = Array(options[:args]).compact
-      store           << options
+      store            << options
     end
   
     def configure
@@ -46,16 +46,23 @@ module Lacquer
         CODE
       end.join("\n")
     end
+
+    def to_vcl_pass_urls
+      <<-CODE.strip_heredoc
+      if(#{to_vcl_conditions(urls_by(:pass))}) {
+        return(pass);
+      }
+      CODE
+    end
     
-    protected
+  protected
     
     def urls_grouped_by_expires
       store.group_by { |opt| opt[:expires_in] }.select { |expires_in, list| expires_in }
     end
     
     def urls_by(group)
-      store.select   { |opt| opt[:group] == group }
+      store.select { |opt| opt[:group] == group }
     end
-  
   end  
 end
