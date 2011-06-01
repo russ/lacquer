@@ -26,6 +26,7 @@ module Lacquer
     #
     # clear_cache_for(root_path, blog_posts_path, '/other/content/*')
     def clear_cache_for(*paths)
+      return unless Lacquer.configuration.enable_cache
       case Lacquer.configuration.job_backend
       when :delayed_job
         require 'lacquer/delayed_job_job'
