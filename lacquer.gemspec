@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lacquer}
-  s.version = "0.5.0.beta3"
+  s.version = "0.5.0.beta4"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Russ Smith (russ@bashme.org)", "Ryan Johns", "Garry Tan (garry@posterous.com), Gabe da Silveira (gabe@websaviour.com)", "Håkon Lerring"]
-  s.date = %q{2011-05-26}
+  s.date = %q{2011-06-01}
   s.description = %q{Rails drop in for Varnish support.}
   s.email = %q{russ@bashme.org}
   s.extra_rdoc_files = [
