@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.version = "0.5.0.beta4"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Russ Smith (russ@bashme.org)", "Ryan Johns", "Garry Tan (garry@posterous.com), Gabe da Silveira (gabe@websaviour.com)", "Håkon Lerring"]
-  s.date = %q{2011-06-01}
+  s.authors = [%q{Russ Smith (russ@bashme.org)}, %q{Ryan Johns}, %q{Garry Tan (garry@posterous.com), Gabe da Silveira (gabe@websaviour.com)}, %q{Håkon Lerring}]
+  s.date = %q{2011-06-02}
   s.description = %q{Rails drop in for Varnish support.}
   s.email = %q{russ@bashme.org}
   s.extra_rdoc_files = [
@@ -58,7 +58,7 @@ Gem::Specification.new do |s|
     "tasks/lacquer.rake"
   ]
   s.homepage = %q{http://github.com/russ/lacquer}
-  s.require_paths = ["lib"]
+  s.require_paths = [%q{lib}]
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{Rails drop in for Varnish support.}
   s.test_files = [
@@ -75,14 +75,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<activesupport>, ["~> 3.0"])
+      s.add_runtime_dependency(%q<activesupport>, [">= 2.3"])
       s.add_runtime_dependency(%q<i18n>, ["~> 0.4"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
       s.add_runtime_dependency(%q<rake>, [">= 0"])
       s.add_runtime_dependency(%q<yard>, [">= 0"])
       s.add_runtime_dependency(%q<erubis>, [">= 0"])
     else
-      s.add_dependency(%q<activesupport>, ["~> 3.0"])
+      s.add_dependency(%q<activesupport>, [">= 2.3"])
       s.add_dependency(%q<i18n>, ["~> 0.4"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<rake>, [">= 0"])
@@ -90,7 +90,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<erubis>, [">= 0"])
     end
   else
-    s.add_dependency(%q<activesupport>, ["~> 3.0"])
+    s.add_dependency(%q<activesupport>, [">= 2.3"])
     s.add_dependency(%q<i18n>, ["~> 0.4"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rake>, [">= 0"])
