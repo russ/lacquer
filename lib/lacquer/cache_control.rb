@@ -37,7 +37,7 @@ module Lacquer
     
     def to_vcl_override_ttl_urls
       urls_grouped_by_expires.map do |expires_in, list|
-        <<-CODE.strip_heredoc
+        <<-CODE.gsub(/^[ \t]{4}*/, '')
         if(#{to_vcl_conditions(list)}) {
           unset beresp.http.Set-Cookie;
           set beresp.ttl = #{expires_in};
@@ -48,7 +48,7 @@ module Lacquer
     end
 
     def to_vcl_pass_urls
-      <<-CODE.strip_heredoc
+      <<-CODE.gsub(/^[ \t]{4}*/, '')
       if(#{to_vcl_conditions(urls_by(:pass))}) {
         return(pass);
       }
@@ -56,7 +56,7 @@ module Lacquer
     end
 
     def to_vcl_pipe_urls
-      <<-CODE.strip_heredoc
+      <<-CODE.gsub(/^[ \t]{4}*/, '')
       if(#{to_vcl_conditions(urls_by(:pipe))}) {
         return(pipe);
       }
