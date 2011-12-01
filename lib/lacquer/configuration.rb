@@ -20,6 +20,9 @@ module Lacquer
     # Error handler
     attr_accessor :command_error_handler
 
+    # Purge Command
+    attr_accessor :purge_command
+
     def initialize
       @enable_cache = true
       @varnish_servers = []
@@ -27,6 +30,7 @@ module Lacquer
       @job_backend = :none
       @retries = 5
       @command_error_handler = nil
+      @purge_command = "url.purge"
     end
 
     # Returns a hash of all configurable options
