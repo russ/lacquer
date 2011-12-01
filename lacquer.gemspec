@@ -61,15 +61,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.10"
   s.summary = "Rails drop in for Varnish support."
-  s.test_files = [
-    "spec/lacquer/cache_control_spec.rb",
-    "spec/lacquer/cache_utils_spec.rb",
-    "spec/lacquer/delayed_job_job_spec.rb",
-    "spec/lacquer/resque_job_spec.rb",
-    "spec/lacquer/varnish_spec.rb",
-    "spec/lacquer/varnishd_spec.rb",
-    "spec/spec_helper.rb"
-  ]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
@@ -77,14 +68,14 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<activesupport>, [">= 2.3"])
       s.add_runtime_dependency(%q<i18n>, ["~> 0.4"])
-      s.add_runtime_dependency(%q<jeweler>, [">= 0"])
+      s.add_runtime_dependency(%q<jeweler>, ["= 1.6.4"])
       s.add_runtime_dependency(%q<rake>, [">= 0"])
       s.add_runtime_dependency(%q<yard>, [">= 0"])
       s.add_runtime_dependency(%q<erubis>, [">= 0"])
     else
       s.add_dependency(%q<activesupport>, [">= 2.3"])
       s.add_dependency(%q<i18n>, ["~> 0.4"])
-      s.add_dependency(%q<jeweler>, [">= 0"])
+      s.add_dependency(%q<jeweler>, ["= 1.6.4"])
       s.add_dependency(%q<rake>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
       s.add_dependency(%q<erubis>, [">= 0"])
@@ -92,7 +83,7 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<activesupport>, [">= 2.3"])
     s.add_dependency(%q<i18n>, ["~> 0.4"])
-    s.add_dependency(%q<jeweler>, [">= 0"])
+    s.add_dependency(%q<jeweler>, ["= 1.6.4"])
     s.add_dependency(%q<rake>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
     s.add_dependency(%q<erubis>, [">= 0"])
