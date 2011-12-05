@@ -3,6 +3,8 @@
 Rails drop in for Varnish support.
 
 == Install
+This gem requires ruby 1.9
+
 Basic installation
 
   sudo gem install lacquer  
