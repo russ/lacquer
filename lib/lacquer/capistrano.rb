@@ -11,6 +11,7 @@ Capistrano::Configuration.instance(:must_exit).load do
 
   namespace :lacquer do
     %w( start stop restart global_purge status ).each do |name|
+      desc "#{name} varnish"
       task name.to_sym, :roles => lacquer_roles do
         next if find_servers_for_task(current_task).empty?
         run "cd #{current_path} && #{rake} lacquer:varnishd:#{name}"
