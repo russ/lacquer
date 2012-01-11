@@ -22,6 +22,9 @@ module Lacquer
 
     # Purge Command
     attr_accessor :purge_command
+    
+    # Pass Command (in vcl_fetch)
+    attr_accessor :pass_command
 
     def initialize
       @enable_cache = true
@@ -31,6 +34,7 @@ module Lacquer
       @retries = 5
       @command_error_handler = nil
       @purge_command = "url.purge"
+      @pass_command = "pass"
     end
 
     # Returns a hash of all configurable options
