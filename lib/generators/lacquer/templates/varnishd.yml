@@ -19,7 +19,7 @@ production:
   sbin_path: /usr/local/sbin
   storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
   params:
-    overflow_max: 2000
+    overflow_max: 2000          # for Varnish 2.x ... use "queue_max: 2000" for Varnish 3.x
     thread_pool_add_delay: 2
     thread_pools: 4             # <Number of cpu cores>
     thread_pool_min: 200        # <800/number of cpu cores>

@@ -32,6 +32,18 @@ config/initializers/lacquer.rb
 
     # config handler (optional, if you use Hoptoad or another error tracking service)
     config.command_error_handler = lambda { |s| HoptoadNotifier.notify(s) }
+    
+    
+    ### Varnish - 2.x  /  3.x  .. VCL-Changes
+    ### https://www.varnish-cache.org/docs/trunk/installation/upgrade.html
+    
+    # => Purge Command  ( "url.purge" for Varnish 2.x .. "ban.url" for Varnish 3.x )
+    # => purges are now called bans in Varnish 3.x .. purge() and purge_url() are now respectively ban() and ban_url()
+    config.purge_command = "ban.url"
+    
+    # => VCL_Fetch Pass Command  ( "pass" for Varnish 2.x .. "hit_for_pass" for Varnish 3.x )
+    # => pass in vcl_fetch renamed to hit_for_pass in Varnish 3.x   
+    config.vcl_pass_command = "pass"
   end
 
 app/controllers/application_controller.rb
@@ -60,7 +72,7 @@ config/varnishd.yml
     sbin_path: /usr/local/sbin
     storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
     params:
-      overflow_max: 2000
+      overflow_max: 2000          # for Varnish 2.x ... use "queue_max: 2000" for Varnish 3.x
       thread_pool_add_delay: 2
       thread_pools: 4             # <Number of cpu cores>
       thread_pool_min: 200        # <800/number of cpu cores>
@@ -101,7 +113,7 @@ This will purge "^(/[a-z]{2})?/class_sections/1/open_scoring.*$" (/sv/class_sect
   
 The varnish.vcl is preprocssed when starting varnishd with the rake tasks
 
-  rake varnishd:start
+  rake lacquer:varnishd:start
   
 config/varnish.vcl.erb
 
@@ -171,11 +183,11 @@ Clearing the cache:
   
 Control varnishd with the following rake tasks
 
-  rake varnishd:start
-  rake varnishd:stop
-  rake varnishd:restart
-  rake varnishd:status
-  rake varnishd:global_purge  
+  rake lacquer:varnishd:start
+  rake lacquer:varnishd:stop
+  rake lacquer:varnishd:restart
+  rake lacquer:varnishd:status
+  rake lacquer:varnishd:global_purge  
 
 == Gotchas
 

@@ -70,12 +70,12 @@ sub vcl_fetch {
   if (beresp.status >= 300) {
     # Remove the Set-Cookie header
     remove beresp.http.Set-Cookie;
-    return(pass);
+    return(<%= Lacquer.configuration.pass_command %>);
   }
   
   # Do not cache the object if the backend application does not want us to.
   if (beresp.http.Cache-Control ~ "(no-cache|no-store|private|must-revalidate)") {
-    return(pass);
+    return(<%= Lacquer.configuration.pass_command %>);
   }
 
   # Everything below here should be cached
