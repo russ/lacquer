@@ -25,7 +25,7 @@ Lacquer.configure do |config|
 
   # => Purge Command  ( "url.purge" for Varnish 2.x .. "ban.url" for Varnish 3.x )
   # => purges are now called bans in Varnish 3.x .. purge() and purge_url() are now respectively ban() and ban_url()
-  config.purge_command = "ban.url"
+  config.purge_command = "url.purge"
 
   # => VCL_Fetch Pass Command  ( "pass" for Varnish 2.x .. "hit_for_pass" for Varnish 3.x )
   # => pass in vcl_fetch renamed to hit_for_pass in Varnish 3.x   
