@@ -43,7 +43,7 @@ config/initializers/lacquer.rb
     
     # => VCL_Fetch Pass Command  ( "pass" for Varnish 2.x .. "hit_for_pass" for Varnish 3.x )
     # => pass in vcl_fetch renamed to hit_for_pass in Varnish 3.x   
-    config.vcl_pass_command = "pass"
+    config.pass_command = "pass"
   end
 
 app/controllers/application_controller.rb
