@@ -14,8 +14,11 @@ module Lacquer
     # Sends the command 'url.purge *path*'
     def purge(*paths)
       paths.all? do |path|
-        send_command(Lacquer.configuration.purge_command + " " + path.gsub('\\', '\\\\\\')).all? do |result|
-          result =~ /200/
+        ActiveSupport::Notifications.instrument('purge.lacquer', path: path) do |payload|
+          send_command(Lacquer.configuration.purge_command + " " + path.gsub('\\', '\\\\\\')).all? do |result|
+            payload[:result] = result
+            result =~ /200/
+          end
         end
       end
     end
