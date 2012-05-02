@@ -28,6 +28,6 @@ Lacquer.configure do |config|
   config.varnish_servers << { :host => "0.0.0.0", :port => 6082 }
 end
 
-Rspec.configure do |c|
+RSpec.configure do |c|
   c.mock_with :rspec
 end
