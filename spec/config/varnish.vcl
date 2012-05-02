@@ -13,4 +13,3 @@ sub vcl_fetch {
   unset beresp.http.Set-Cookie;
   set beresp.grace = 30m;
 }
-

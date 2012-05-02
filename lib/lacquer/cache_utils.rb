@@ -38,7 +38,7 @@ module Lacquer
         Varnish.new.purge(*paths)
       end
     end
-    
+
     # Sends cache control headers with page.
     # These are the headers that varnish responds to
     # to set cache properly.

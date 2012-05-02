@@ -3,6 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + '../../spec_helper')
 describe "DelayedJobJob" do
   describe "perform" do
     it "should purge the parameter" do
+      require File.expand_path('lib/lacquer/delayed_job_job')
+
       @varnish_mock = mock('varnish')
       Lacquer::Varnish.stub!(:new).and_return(@varnish_mock)
 

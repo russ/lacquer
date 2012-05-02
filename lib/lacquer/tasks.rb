@@ -4,12 +4,12 @@ namespace :lacquer do
     task :start => :environment do
       Lacquer::Varnishd.new.start
     end
-    
+
     desc "Stop varnishd daemon using Lacquer's settings"
     task :stop => :environment do
       Lacquer::Varnishd.new.stop
     end
-    
+
     desc "Running status of varnishd daemon using Lacquer's settings"
     task :status => :environment do
       if Lacquer::Varnishd.new.running?
@@ -18,7 +18,7 @@ namespace :lacquer do
         puts "Varnishd is not running"
       end
     end
-    
+
     desc "Restart varnishd daemon using Lacquer's settings"
     task :restart => :environment do
       varnishd = Lacquer::Varnishd.new
@@ -28,7 +28,7 @@ namespace :lacquer do
       end
       varnishd.start
     end
-    
+
     desc "Purge ALL urls from Varnish"
     task :global_purge => :environment do
       Lacquer::Varnish.new.purge('.*')

@@ -22,7 +22,7 @@ module Lacquer
 
     # Purge Command
     attr_accessor :purge_command
-    
+
     # Pass Command (in vcl_fetch)
     attr_accessor :pass_command
 

@@ -11,9 +11,9 @@ describe Lacquer::CacheControl do
       cache_control.store.first[:args].should   == ["[0-9]+"]
     end
   end
-  
+
   describe "#urls_for" do
-    it "returns urls to expire for object" do      
+    it "returns urls to expire for object" do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/class_sections/%s.*$", :args => "[0-9]+"
       cache_control.urls_for(:class_section, mock("ClassSection", :to_param => 1)).should == ["^/sv/class_sections/1.*$"]
@@ -25,7 +25,7 @@ describe Lacquer::CacheControl do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/class_sections/%s.*$", :args => "[0-9]+"
       cache_control.register :class_section, :url => "^/sv/info_screens/%s.*$", :args => "[0-9]+"
-      
+
       conditions = cache_control.to_vcl_conditions
       conditions.should include("req.url ~ \"^/sv/class_sections/[0-9]+.*$\"")
       conditions.should include("||")
@@ -47,7 +47,7 @@ describe Lacquer::CacheControl do
       pass_urls.should include('if(req.url ~ "*.mp4$")')
       pass_urls.should include('return(pipe)')
     end
-    
+
     it "returns vcl for override ttl on beresp" do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/competitions$", :expires_in => "7d"
@@ -56,13 +56,13 @@ describe Lacquer::CacheControl do
       override_ttl.should include('unset beresp.http.Set-Cookie')
       override_ttl.should include('return(deliver)')
     end
-    
+
     it "group by expires in" do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/competitions$", :expires_in => "1d"
       cache_control.register :class_section, :url => "^/sv/competitions/%s$", :args => "[0-9]+", :expires_in => "2d"
       cache_control.register :class_section, :url => "^/sv/competitions/%s/info_screen$", :args => "[0-9]+"
-      
+
       override_ttl = cache_control.to_vcl_override_ttl_urls
       override_ttl.should include('if(req.url ~ "^/sv/competitions$")')
       override_ttl.should include('set beresp.ttl = 1d')

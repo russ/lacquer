@@ -5,7 +5,7 @@ describe "Varnish" do
     @telnet_mock = mock('Net::Telnet')
     Net::Telnet.stub!(:new).and_return(@telnet_mock)
     @telnet_mock.stub!(:close)
-    @telnet_mock.stub!(:cmd)    
+    @telnet_mock.stub!(:cmd)
     @telnet_mock.stub!(:puts)
     @telnet_mock.stub!(:waitfor)
     Lacquer.configuration.retries.should == 5
@@ -33,7 +33,7 @@ describe "Varnish" do
         Lacquer::Varnish.new.purge('/')
       end
     end
-    
+
     describe "when using authentication" do
       after(:each) do
         Lacquer.configuration.varnish_servers.first[:secret] = nil
@@ -47,7 +47,7 @@ describe "Varnish" do
           @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield('107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n')
           @telnet_mock.stub!(:cmd).with("String" => "auth d218942acc92753db0c9fedddb32cde6158de28e903356caed1808cf0e23a15a", "Match" => /\d{3}/).and_yield('200')
           @telnet_mock.stub!(:cmd).with("String" => "url.purge /", "Match" => /\n\n/).and_yield('200')
-        
+
           lambda {
             Lacquer::Varnish.new.purge('/')
           }.should_not raise_error
@@ -89,7 +89,7 @@ describe "Varnish" do
         }.should_not raise_error(Lacquer::VarnishError)
       end
     end
-    
+
   end
 
   describe "when sending a stats command" do
