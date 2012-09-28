@@ -63,9 +63,7 @@ module Lacquer
     end
 
     def running?
-      !!pid && !!Process.kill(0, pid.to_i)
-    rescue
-      false
+      !!pid && !!execute("ps p #{pid}").include?(pid.to_s) # works with sudo
     end
 
     def args
