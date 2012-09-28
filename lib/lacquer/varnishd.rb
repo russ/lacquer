@@ -1,6 +1,6 @@
 module Lacquer
   class Varnishd
-    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :backend, :params
+    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :backend, :params, :use_sudo
 
     cattr_accessor :started_check_delay, :vcl_script_filename
     self.started_check_delay = 1
@@ -23,8 +23,8 @@ module Lacquer
     end
 
     def initialize(settings = self.class.config)
-      self.listen, self.telnet, self.backend, self.sbin_path, self.storage, self.working_dir, self.user, self.params =
-        settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params")
+      self.listen, self.telnet, self.backend, self.sbin_path, self.storage, self.working_dir, self.user, self.params, self.use_sudo =
+        settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params", "use_sudo")
     end
 
     def render_vcl
@@ -55,7 +55,7 @@ module Lacquer
 
     def stop
       if running?
-        execute("kill #{pid}")
+        execute("#{'sudo ' if use_sudo}kill #{pid}")
         pid_file.delete
       else
         log("pid file not found or varnishd not running")
@@ -95,7 +95,7 @@ module Lacquer
     protected
 
     def varnishd_cmd
-      Pathname.new(sbin_path).join('varnishd')
+      "#{'sudo ' if use_sudo}#{Pathname.new(sbin_path).join('varnishd')}"
     end
 
     def pid_file

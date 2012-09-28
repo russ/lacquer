@@ -16,6 +16,7 @@ production:
   listen: :80
   telnet: localhost:6082
   backend: backend_server:8080
+  use_sudo: false
   sbin_path: /usr/local/sbin
   storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
   params:

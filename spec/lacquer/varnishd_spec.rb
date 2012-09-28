@@ -27,12 +27,18 @@ describe "Varnishd" do
     Lacquer::Varnishd.config.should have_key("telnet")
     Lacquer::Varnishd.config.should have_key("sbin_path")
     Lacquer::Varnishd.config.should have_key("storage")
+    Lacquer::Varnishd.config.should have_key("use_sudo")
     Lacquer::Varnishd.config["params"].should have_key('overflow_max')
   end
 
   it "returns full path to varnishd" do
     executes_with(%r[/opt/varnishd/sbin/varnishd])
     Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin").start
+  end
+
+  it "returns full path to varnishd using sudo" do
+    executes_with(%r[sudo /opt/varnishd/sbin/varnishd])
+    Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin", "use_sudo" => true).start
   end
 
   it "returns pid file" do

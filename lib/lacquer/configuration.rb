@@ -26,6 +26,9 @@ module Lacquer
     # Pass Command (in vcl_fetch)
     attr_accessor :pass_command
 
+    # Use sudo for start up
+    attr_accessor :use_sudo
+
     def initialize
       @enable_cache = true
       @varnish_servers = []
@@ -35,6 +38,7 @@ module Lacquer
       @command_error_handler = nil
       @purge_command = "url.purge"
       @pass_command = "pass"
+      @use_sudo = false
     end
 
     # Returns a hash of all configurable options
