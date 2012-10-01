@@ -18,6 +18,7 @@ production:
   backend: backend_server:8080
   use_sudo: false
   sbin_path: /usr/local/sbin
+  pid_path: <%= Rails.root.join('log') %>
   storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
   params:
     overflow_max: 2000          # for Varnish 2.x ... use "queue_max: 2000" for Varnish 3.x

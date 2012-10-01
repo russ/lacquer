@@ -1,6 +1,6 @@
 module Lacquer
   class Varnishd
-    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :backend, :params, :use_sudo
+    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :backend, :params, :use_sudo, :pid_path
 
     cattr_accessor :started_check_delay, :vcl_script_filename
     self.started_check_delay = 1
@@ -23,8 +23,8 @@ module Lacquer
     end
 
     def initialize(settings = self.class.config)
-      self.listen, self.telnet, self.backend, self.sbin_path, self.storage, self.working_dir, self.user, self.params, self.use_sudo =
-        settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params", "use_sudo")
+      self.listen, self.telnet, self.backend, self.sbin_path, self.storage, self.working_dir, self.user, self.params, self.use_sudo, self.pid_path =
+        settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params", "use_sudo", "pid_path")
     end
 
     def render_vcl
@@ -97,7 +97,15 @@ module Lacquer
     end
 
     def pid_file
-      self.class.root_path.join("log/varnishd.#{self.class.env}.pid")
+      pid_computed_path.join("varnishd.#{self.class.env}.pid")
+    end
+
+    def pid_computed_path
+      if self.pid_path
+        Pathname.new self.pid_path
+      else
+        self.class.root_path.join('log/')
+      end
     end
 
     def vcl_script_filename

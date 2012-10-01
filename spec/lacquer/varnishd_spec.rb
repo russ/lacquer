@@ -46,6 +46,11 @@ describe "Varnishd" do
     Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin").start
   end
 
+  it "returns pid file with custom path" do
+    executes_with(/pid\/varnishd.test.pid/)
+    Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin", "pid_path" => "pid/").start
+  end
+
   it "returns params as string" do
     Lacquer::Varnishd.new("params" => { "max" => 2000, "add" => 2 }).params_args.should == "-p max=2000 -p add=2"    
   end
