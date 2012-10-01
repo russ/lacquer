@@ -6,5 +6,6 @@ test:
   storage: "file,#{Rails.root}/log/varnish,1GB"
   working_dir: ""
   user: "deploy"
+  use_sudo: true
   params:
     overflow_max: 2000
