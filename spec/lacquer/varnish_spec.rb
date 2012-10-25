@@ -44,13 +44,13 @@ describe "Varnish" do
         end
 
         it "should return successfully when using correct secret" do
-          @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield('107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n')
-          @telnet_mock.stub!(:cmd).with("String" => "auth d218942acc92753db0c9fedddb32cde6158de28e903356caed1808cf0e23a15a", "Match" => /\d{3}/).and_yield('200')
+          @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield("107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n")
+          @telnet_mock.stub!(:cmd).with("String" => "auth a4aefcde4b0ee27268af1c9ed613e3220601276b48f9ae5914f801db6c8ef612", "Match" => /\d{3}/).and_yield('200')
           @telnet_mock.stub!(:cmd).with("String" => "url.purge /", "Match" => /\n\n/).and_yield('200')
 
           lambda {
             Lacquer::Varnish.new.purge('/')
-          }.should_not raise_error
+          }.should_not raise_error(Lacquer::AuthenticationError)
         end
 
         after(:each) do
@@ -63,13 +63,13 @@ describe "Varnish" do
           Lacquer.configuration.varnish_servers.first[:secret] = "the wrong secret"
         end
         it "should raise Lacquer::AuthenticationError when using wrong secret" do
-          @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield('107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n')
+          @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield("107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n")
           @telnet_mock.stub!(:cmd).with("String" => "auth 767dc6ec9eca6e4155d20c8479d3a1a10cf88d92c3846388a830d7fd966d58f9", "Match" => /\d{3}/).and_yield('107')
           @telnet_mock.stub!(:cmd).with("url.purge /").and_yield('200')
 
           lambda {
             Lacquer::Varnish.new.purge('/')
-          }.should raise_error(Lacquer::VarnishError)
+          }.should raise_error(Lacquer::AuthenticationError)
         end
         after(:each) do
           Lacquer.configuration.varnish_servers.first[:secret] = nil

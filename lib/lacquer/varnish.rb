@@ -37,8 +37,7 @@ module Lacquer
 
           if(server[:secret])
             connection.waitfor("Match" => /^107/) do |authentication_request|
-              matchdata = /^107 \d{2}\s*\n\n(.{32}).*$/m.match(authentication_request) # Might be a bit ugly regex, but it works great!
-              salt = matchdata[1]
+              salt = authentication_request.split("\n")[1][0..31]
               if(salt.empty?)
                 raise VarnishError, "Bad authentication request"
               end
@@ -70,6 +69,8 @@ module Lacquer
                :error_message => "Error while trying to connect to #{server[:host]}:#{server[:port]}: #{e}",
                :parameters    => server,
                :response      => response })
+            elsif e.kind_of?(Lacquer::AuthenticationError)
+              raise e
             else
               raise VarnishError.new("Error while trying to connect to #{server[:host]}:#{server[:port]} #{e}")
             end
