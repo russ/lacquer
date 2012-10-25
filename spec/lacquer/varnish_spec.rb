@@ -64,7 +64,7 @@ describe "Varnish" do
         end
         it "should raise Lacquer::AuthenticationError when using wrong secret" do
           @telnet_mock.stub!(:waitfor).with("Match" => /^107/).and_yield('107 59      \nhaalpffwlcvblmdrinpnjwigwsbiiigq\n\nAuthentication required.\n\n')
-          @telnet_mock.stub!(:cmd).with("String" => "auth 49725ec6723b64774a7ab918a24cba811130e99b7ac4b4c9d21ce9a8144762c8", "Match" => /\d{3}/).and_yield('107')
+          @telnet_mock.stub!(:cmd).with("String" => "auth 767dc6ec9eca6e4155d20c8479d3a1a10cf88d92c3846388a830d7fd966d58f9", "Match" => /\d{3}/).and_yield('107')
           @telnet_mock.stub!(:cmd).with("url.purge /").and_yield('200')
 
           lambda {
