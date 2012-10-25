@@ -70,6 +70,8 @@ module Lacquer
                :error_message => "Error while trying to connect to #{server[:host]}:#{server[:port]}: #{e}",
                :parameters    => server,
                :response      => response })
+            elsif e.kind_of?(Lacquer::AuthenticationError)
+              raise e
             else
               raise VarnishError.new("Error while trying to connect to #{server[:host]}:#{server[:port]} #{e}")
             end
