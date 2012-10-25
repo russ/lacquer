@@ -37,7 +37,8 @@ module Lacquer
 
           if(server[:secret])
             connection.waitfor("Match" => /^107/) do |authentication_request|
-              salt = authentication_request.split("\n")[1][0..31]
+              matchdata = /^107 \d{2}\s*(.{32}).*$/m.match(authentication_request) # Might be a bit ugly regex, but it works great!
+              salt = matchdata[1]
               if(salt.empty?)
                 raise VarnishError, "Bad authentication request"
               end
