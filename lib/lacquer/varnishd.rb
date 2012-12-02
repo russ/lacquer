@@ -1,6 +1,6 @@
 module Lacquer
   class Varnishd
-    attr_accessor :listen, :telnet, :sbin_path, :storage, :working_dir, :user, :backend, :params, :use_sudo, :pid_path
+    attr_accessor :listen, :telnet, :sbin_path, :bin_path, :storage, :working_dir, :user, :backend, :params, :use_sudo, :pid_path
 
     cattr_accessor :started_check_delay, :vcl_script_filename
     self.started_check_delay = 1
@@ -23,8 +23,8 @@ module Lacquer
     end
 
     def initialize(settings = self.class.config)
-      self.listen, self.telnet, self.backend, self.sbin_path, self.storage, self.working_dir, self.user, self.params, self.use_sudo, self.pid_path =
-        settings.values_at("listen", "telnet", "backend", "sbin_path", "storage", "working_dir", "user", "params", "use_sudo", "pid_path")
+      self.listen, self.telnet, self.backend, self.sbin_path, self.bin_path, self.storage, self.working_dir, self.user, self.params, self.use_sudo, self.pid_path =
+        settings.values_at("listen", "telnet", "backend", "sbin_path", "bin_path", "storage", "working_dir", "user", "params", "use_sudo", "pid_path")
     end
 
     def render_vcl
@@ -62,6 +62,18 @@ module Lacquer
       end
     end
 
+    def reload
+      if running?
+        generate_vcl
+        reload_id = "reload#{Time.now.usec}"
+        load_cmd = "#{varnishadm_cmd} vcl.load #{reload_id} #{options['-f']}"
+        use_cmd = "#{varnishadm_cmd} vcl.use #{reload_id}"
+        execute "#{load_cmd} && #{use_cmd}"
+      else
+        start
+      end
+    end
+
     def running?
       !!pid && !!execute("ps p #{pid}").include?(pid.to_s) # works with sudo
     end
@@ -94,6 +106,10 @@ module Lacquer
 
     def varnishd_cmd
       "#{'sudo ' if use_sudo}#{Pathname.new(sbin_path).join('varnishd')}"
+    end
+
+    def varnishadm_cmd
+      "#{'sudo ' if use_sudo}#{Pathname.new(bin_path).join('varnishadm')} -T #{options['-T']}"
     end
 
     def pid_file
