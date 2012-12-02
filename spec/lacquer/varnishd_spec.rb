@@ -114,7 +114,7 @@ describe "Varnishd" do
         @varnishd = Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin")
       end
 
-      it 'executes the varnishadm reload commands' do
+      it 'starts varnishd' do
         @varnishd.reload
       end
     end
