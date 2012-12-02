@@ -26,6 +26,7 @@ describe "Varnishd" do
     Lacquer::Varnishd.config.should have_key("listen")
     Lacquer::Varnishd.config.should have_key("telnet")
     Lacquer::Varnishd.config.should have_key("sbin_path")
+    Lacquer::Varnishd.config.should have_key("bin_path")
     Lacquer::Varnishd.config.should have_key("storage")
     Lacquer::Varnishd.config.should have_key("use_sudo")
     Lacquer::Varnishd.config["params"].should have_key('overflow_max')
@@ -76,5 +77,46 @@ describe "Varnishd" do
     result = Lacquer::Varnishd.new.render_vcl
     result.should include('.host = "0.0.0.0"')
     result.should include('.port = "3000"')
+  end
+
+  describe '#reload' do
+    def expect_reload_cmd(attributes)
+      Time.stub(:now).and_return Time.parse('October 6th, 1984')
+      varnishadm_cmd = "#{attributes['bin_path']}/varnishadm -T #{attributes['telnet']}"
+      reload_id = "reload#{Time.now.usec}"
+      load_cmd = "#{varnishadm_cmd} vcl.load #{reload_id} config/generate.vcl"
+      use_cmd = "#{varnishadm_cmd} vcl.use #{reload_id}"
+
+      executes_with "#{load_cmd} && #{use_cmd}"
+    end
+
+    context 'given varnishd is running' do
+      before do
+        attributes = { "sbin_path" => "/opt/varnishd/sbin", "bin_path" => "/opt/bin", "telnet" => "localhost:6082" }
+        expect_reload_cmd attributes
+        @varnishd = Lacquer::Varnishd.new attributes
+        @varnishd.stub(:vcl_script_filename).and_return("config/generate.vcl")
+        @varnishd.stub(:running?).and_return true
+      end
+
+      it 'executes the varnishadm reload commands' do
+        @varnishd.should_receive :generate_vcl
+      end
+
+      after do
+        @varnishd.reload
+      end
+    end
+
+    context 'given varnishd is not running' do
+      before do
+        executes_with(%r[/opt/varnishd/sbin/varnishd])
+        @varnishd = Lacquer::Varnishd.new("sbin_path" => "/opt/varnishd/sbin")
+      end
+
+      it 'executes the varnishadm reload commands' do
+        @varnishd.reload
+      end
+    end
   end
 end

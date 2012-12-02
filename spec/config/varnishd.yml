@@ -2,6 +2,7 @@ test:
   listen: :80
   telnet: localhost:6082
   sbin_path: /usr/local/sbin
+  bin_path: /usr/local/bin
   backend: 0.0.0.0:3000
   storage: "file,#{Rails.root}/log/varnish,1GB"
   working_dir: ""

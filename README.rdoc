@@ -59,19 +59,22 @@ config/varnishd.yml
   development:
     listen: localhost:3001
     telnet: localhost:6082
-    sbin_path: /usr/local/sbin
+    sbin_path: /usr/local/sbin # path to varnishd
+    bin_path: /usr/local/bin   # path to varnishadm
     storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
     
   test:
     listen: localhost:3002
     telnet: localhost:6083
     sbin_path: /usr/local/sbin
+    bin_path: /usr/local/bin
     storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
 
   production:
     listen: :80
     telnet: localhost:6082
     sbin_path: /usr/local/sbin
+    bin_path: /usr/local/bin
     storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
     params:
       overflow_max: 2000          # for Varnish 2.x ... use "queue_max: 2000" for Varnish 3.x
@@ -188,6 +191,7 @@ Control varnishd with the following rake tasks
   rake lacquer:varnishd:start
   rake lacquer:varnishd:stop
   rake lacquer:varnishd:restart
+  rake lacquer:varnishd:reload
   rake lacquer:varnishd:status
   rake lacquer:varnishd:global_purge  
 
