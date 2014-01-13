@@ -34,6 +34,9 @@ module Lacquer
       when :resque
         require 'lacquer/resque_job'
         Resque.enqueue(Lacquer::ResqueJob, paths)
+      when :sidekiq
+        require 'lacquer/sidekiq_worker'
+        Lacquer::SidekiqWorker.perform_async(paths)
       when :none
         Varnish.new.purge(*paths)
       end

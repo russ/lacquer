@@ -5,7 +5,7 @@ Lacquer.configure do |config|
   # Unless overridden in a controller or action, the default will be used
   config.default_ttl = 1.week
 
-  # Can be :none, :delayed_job, :resque
+  # Can be :none, :delayed_job, :resque, :sidekiq
   config.job_backend = :none
 
   # Array of Varnish servers to manage

@@ -1,5 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '../../spec_helper')
 require 'lacquer/delayed_job_job'
+require 'lacquer/resque_job'
+require 'lacquer/sidekiq_worker'
 
 describe "Lacquer" do
   before(:each) do
@@ -42,6 +44,15 @@ describe "Lacquer" do
         Lacquer.configuration.job_backend = :resque
 
         Resque.should_receive(:enqueue).once
+        @controller.clear_cache_for('/', '/blog/posts')
+      end
+    end
+
+    describe "when backend is :sidekiq" do
+      it "sends commands to a sidekiq queue" do
+        Lacquer.configuration.job_backend = :sidekiq
+
+        Lacquer::SidekiqWorker.should_receive(:perform_async).once
         @controller.clear_cache_for('/', '/blog/posts')
       end
     end

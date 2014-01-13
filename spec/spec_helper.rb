@@ -21,6 +21,18 @@ end
 
 module Resque; end
 
+module Sidekiq
+  module Worker
+    module ClassMethods
+      def sidekiq_options(options); end
+    end
+
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+  end
+end
+
 Lacquer.configure do |config|
   config.enable_cache = true
   config.default_ttl = 1.week
