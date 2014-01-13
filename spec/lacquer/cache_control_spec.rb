@@ -16,7 +16,7 @@ describe Lacquer::CacheControl do
     it "returns urls to expire for object" do
       cache_control = described_class.new
       cache_control.register :class_section, :url => "^/sv/class_sections/%s.*$", :args => "[0-9]+"
-      cache_control.urls_for(:class_section, mock("ClassSection", :to_param => 1)).should == ["^/sv/class_sections/1.*$"]
+      cache_control.urls_for(:class_section, double("ClassSection", :to_param => 1)).should == ["^/sv/class_sections/1.*$"]
     end
   end
 

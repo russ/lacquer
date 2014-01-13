@@ -3,17 +3,17 @@ require File.expand_path(File.dirname(__FILE__) + '../../spec_helper')
 describe "Varnishd" do
   before do
     spec_root = Pathname.new(__FILE__).dirname.join('..').expand_path    
-    Lacquer::Varnishd.stub!(:started_check_delay).and_return(0)
-    Lacquer::Varnishd.stub!(:env).and_return('test')
-    Lacquer::Varnishd.stub!(:root_path).and_return(spec_root)
+    Lacquer::Varnishd.stub(:started_check_delay).and_return(0)
+    Lacquer::Varnishd.stub(:env).and_return('test')
+    Lacquer::Varnishd.stub(:root_path).and_return(spec_root)
   end
 
   def executes_with(regexp)
     new_method = Lacquer::Varnishd.method(:new)
-    Lacquer::Varnishd.stub!(:new).and_return do |*args|
+    Lacquer::Varnishd.stub(:new).and_return do |*args|
       varnishd = new_method.call(*args)
       varnishd.should_receive(:execute).with(regexp)
-      varnishd.stub!(:log)
+      varnishd.stub(:log)
       varnishd
     end
   end
@@ -66,14 +66,14 @@ describe "Varnishd" do
   end
 
   it "raises error if vcl_script_file is not present" do
-    Lacquer::Varnishd.stub!(:vcl_script_filename).and_return("config/file_not_found.vcl")
+    Lacquer::Varnishd.stub(:vcl_script_filename).and_return("config/file_not_found.vcl")
     expect {
       Lacquer::Varnishd.new.vcl_script_path
     }.to raise_error
   end
 
   it "renders vcl file when erb is present" do
-    Lacquer::Varnishd.stub!(:vcl_script_filename).and_return("config/generate.vcl")
+    Lacquer::Varnishd.stub(:vcl_script_filename).and_return("config/generate.vcl")
     result = Lacquer::Varnishd.new.render_vcl
     result.should include('.host = "0.0.0.0"')
     result.should include('.port = "3000"')

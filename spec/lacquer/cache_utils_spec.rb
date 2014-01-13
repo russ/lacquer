@@ -10,8 +10,8 @@ describe "Lacquer" do
 
   describe "talking to varnish" do
     before(:each) do
-      @varnish_stub = mock('varnish')
-      Lacquer::Varnish.stub!(:new).and_return(@varnish_stub)
+      @varnish_stub = double('varnish')
+      Lacquer::Varnish.stub(:new).and_return(@varnish_stub)
     end
 
     describe "when backend is :none" do
@@ -82,8 +82,8 @@ describe "Lacquer" do
   end
 
   it "should allow purge by non-controller sweepers" do
-    @varnish_stub = mock('varnish')
-    Lacquer::Varnish.stub!(:new).and_return(@varnish_stub)
+    @varnish_stub = double('varnish')
+    Lacquer::Varnish.stub(:new).and_return(@varnish_stub)
 
     @sweeper = SweeperClass.new
 
