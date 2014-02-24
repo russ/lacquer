@@ -43,7 +43,7 @@ module Lacquer
                 raise VarnishError, "Bad authentication request"
               end
 
-              digest = OpenSSL::Digest::Digest.new('sha256')
+              digest = OpenSSL::Digest::SHA256.new
               digest << salt
               digest << "\n"
               digest << server[:secret]
