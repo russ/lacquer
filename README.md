@@ -209,6 +209,22 @@ Control varnishd with the following rake tasks
   rake lacquer:varnishd:global_purge  
 ```
 
+## Deployment
+Lacquer supports Capistrano 2.5+
+
+For Capistrano 2.5 just add `require 'lacquer/capistrano'` to your `config/deploy.rb` file.
+
+For Capistrano 3+ add `require 'lacquer/capistrano'` to your `Capfile`.
+
+```ruby
+# Capfile
+require 'capistrano/setup'
+require 'capistrano/deploy'
+require 'capistrano/rails/assets'
+require 'capistrano/rails/migrations'
+require 'lacquer/capistrano'
+```
+
 ## Gotchas
 
 The default TTL for most actions is set to 0, since for most cases you'll probably want to be fairly explicit about what pages do get cached by varnish. The default cache header is typically:
