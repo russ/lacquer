@@ -1,19 +1,20 @@
-{<img src="https://secure.travis-ci.org/russ/lacquer.png?branch=master" alt="Build Status" />}[http://travis-ci.org/russ/lacquer]
+![http://travis-ci.org/russ/lacquer](https://secure.travis-ci.org/russ/lacquer.png?branch=master)
 
-= lacquer
+# Lacquer
 
-Rails drop in for Varnish support.
+Rails drop in for [Varnish](https://www.varnish-cache.org/) support.
 
-== Install
-This gem requires ruby 1.9
+## Install
+This gem requires ruby 1.9+
 
-Basic installation
+```text
+gem install lacquer  
+rails generate lacquer:install
+```
 
-  sudo gem install lacquer  
-  rails generate lacquer:install
+**config/initializers/lacquer.rb**
 
-config/initializers/lacquer.rb
-
+```ruby
   Lacquer.configure do |config|
     # Globally enable/disable cache
     config.enable_cache = true
@@ -21,7 +22,7 @@ config/initializers/lacquer.rb
     # Unless overridden in a controller or action, the default will be used
     config.default_ttl = 1.week
 
-    # Can be :none, :delayed_job, :resque
+    # Can be :none, :delayed_job, :resque, :sidekiq
     config.job_backend = :none
 
     # Array of Varnish servers to manage
@@ -34,35 +35,38 @@ config/initializers/lacquer.rb
 
     # config handler (optional, if you use Hoptoad or another error tracking service)
     config.command_error_handler = lambda { |s| HoptoadNotifier.notify(s) }
-    
-    
+
+
     ### Varnish - 2.x  /  3.x  .. VCL-Changes
     ### https://www.varnish-cache.org/docs/trunk/installation/upgrade.html
-    
+
     # => Purge Command  ( "url.purge" for Varnish 2.x .. "ban.url" for Varnish 3.x )
     # => purges are now called bans in Varnish 3.x .. purge() and purge_url() are now respectively ban() and ban_url()
     config.purge_command = "ban.url"
-    
+
     # => VCL_Fetch Pass Command  ( "pass" for Varnish 2.x .. "hit_for_pass" for Varnish 3.x )
-    # => pass in vcl_fetch renamed to hit_for_pass in Varnish 3.x   
+    # => pass in vcl_fetch renamed to hit_for_pass in Varnish 3.x
     config.pass_command = "pass"
   end
+```
 
-app/controllers/application_controller.rb
+**app/controllers/application_controller.rb**
 
+```ruby
   class ApplicationController < ActionController::Base
     include Lacquer::CacheUtils
   end
-  
-config/varnishd.yml
+```
 
+**config/varnishd.yml**
+```ruby
   development:
     listen: localhost:3001
     telnet: localhost:6082
     sbin_path: /usr/local/sbin # path to varnishd
     bin_path: /usr/local/bin   # path to varnishadm
     storage: "file,#{Rails.root}/log/varnishd.#{Rails.env}.cache,100MB"
-    
+
   test:
     listen: localhost:3002
     telnet: localhost:6083
@@ -82,71 +86,76 @@ config/varnishd.yml
       thread_pools: 4             # <Number of cpu cores>
       thread_pool_min: 200        # <800/number of cpu cores>
       thread_pool_max: 4000
+```
 
 If only some urls of the application should be cached by varnish, Lacquer::CacheControl will be helpful.
 
-config/initializers/caches.rb
-
+**config/initializers/caches.rb**
+```ruby
   require "lacquer/cache_control"
 
   Lacquer.cache_control.configure do |config|
-    config.register :static,              :url => "^/images",                                           
+    config.register :static,              :url => "^/images",
                                           :expires_in => "365d"
-                                        
+
     config.register :static,              :url => "^/stylesheets",
                                           :expires_in => "365d"
-                                        
-    config.register :static,              :url => "^/javascripts",                                       
+
+    config.register :static,              :url => "^/javascripts",
                                           :expires_in => "365d"
-  
-    config.register :class_section,       :url => "^(/[a-z]{2})?/(info_screens|class_sections)/%s.*$",   
-                                          :args => "[0-9]+", 
+
+    config.register :class_section,       :url => "^(/[a-z]{2})?/(info_screens|class_sections)/%s.*$",
+                                          :args => "[0-9]+",
                                           :expires_in => "1m"
-                                        
+
     config.register :open_scoring,        :url => "^(/[a-z]{2})?/class_sections/%s/open_scoring.*$",
                                           :args => "[0-9]+",
                                           :expires_in => "1m"
-                                        
+
   end
+```
 
 In the sweeper we can do something like this
 
+```ruby
   class_section = ClassSection.find(1)
-  Lacquer.cache_control.purge(:open_scoring, class_section) 
-  
+  Lacquer.cache_control.purge(:open_scoring, class_section)
+```
+
 This will purge "^(/[a-z]{2})?/class_sections/1/open_scoring.*$" (/sv/class_sections/1/open_scoring.js, /sv/class_sections/1/open_scoring.html)
-  
+
 The varnish.vcl is preprocssed when starting varnishd with the rake tasks
 
-  rake lacquer:varnishd:start
-  
-config/varnish.vcl.erb
+`rake lacquer:varnishd:start`
 
+**config/varnish.vcl.erb**
+
+```vcl
   sub vcl_recv {
     # Lookup requests that we know should be cached
-    if (<%= Lacquer.cache_control.to_vcl_conditions %>) {    
+    if (<%= Lacquer.cache_control.to_vcl_conditions %>) {
       # Clear cookie and authorization headers, set grace time, lookup in the cache
       unset req.http.Cookie;
       unset req.http.Authorization;
       return(lookup);
     }
-    
+
     # Generates
     #
-    # if(req.url ~ "^/images" || 
-    #    req.url ~ "^/stylesheets" || 
-    #    req.url ~ "^/javascripts" || 
-    #    req.url ~ "^(/[a-z]{2})?/(info_screens|class_sections)/[0-9]+.*$" || 
+    # if(req.url ~ "^/images" ||
+    #    req.url ~ "^/stylesheets" ||
+    #    req.url ~ "^/javascripts" ||
+    #    req.url ~ "^(/[a-z]{2})?/(info_screens|class_sections)/[0-9]+.*$" ||
     #    req.url ~ "^(/[a-z]{2})?/class_sections/[0-9]+/open_scoring.*$") {
     #    unset req.http.Cookie;
     #    unset req.http.Authorization;
-    #    return(lookup);         
+    #    return(lookup);
     # }
   }
 
   sub vcl_fetch {
     <%= Lacquer.cache_control.to_vcl_override_ttl_urls %>
-    
+
     # Generates
     #
     # if(req.url ~ "^/images" || req.url ~ "^/stylesheets" || req.url ~ "^/javascripts") {
@@ -155,24 +164,26 @@ config/varnish.vcl.erb
     #   return(deliver);
     # }
     #
-    # if(req.url ~ "^(/[a-z]{2})?/(info_screens|class_sections)/[0-9]+.*$" || 
+    # if(req.url ~ "^(/[a-z]{2})?/(info_screens|class_sections)/[0-9]+.*$" ||
     #   req.url ~ "^(/[a-z]{2})?/class_sections/[0-9]+/open_scoring.*$") {
     #   unset beresp.http.Set-Cookie;
     #   set beresp.ttl = 1m;
     #   return(deliver);
     # }
   }
- 
+```
+
 This makes it much simpler to perform cacheing, it's only setuped in one place, purge it or just let it expire.
-  
-== Usage
+
+## Usage
 
 To set a custom ttl for a controller:
 
-  before_filter { |controller| controller.set_cache_ttl(15.minutes) }
+`before_filter { |controller| controller.set_cache_ttl(15.minutes) }`
 
 Clearing the cache:
 
+```ruby
   class Posts < ApplicationController
     after_filter :clear_cache, :only => [ :create, :update, :destroy ]
 
@@ -185,17 +196,20 @@ Clearing the cache:
         post_path(@post))
     end
   end
-  
+```
+
 Control varnishd with the following rake tasks
 
+```
   rake lacquer:varnishd:start
   rake lacquer:varnishd:stop
   rake lacquer:varnishd:restart
   rake lacquer:varnishd:reload
   rake lacquer:varnishd:status
   rake lacquer:varnishd:global_purge  
+```
 
-== Gotchas
+## Gotchas
 
 The default TTL for most actions is set to 0, since for most cases you'll probably want to be fairly explicit about what pages do get cached by varnish. The default cache header is typically:
 
@@ -207,7 +221,7 @@ The key gotcha here is that cached pages strip cookies, so if your application r
 
 As a result, all you have to do to set a cacheable action is the before filter above.
 
-== Note on Patches/Pull Requests
+## Note on Patches/Pull Requests
 
 * Fork the project.
 * Make your feature addition or bug fix.
@@ -215,6 +229,6 @@ As a result, all you have to do to set a cacheable action is the before filter a
 * Commit, do not mess with rakefile, version, or history.  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
 
-== Copyright
+## Copyright
 
-Copyright (c) 2010 Russ Smith. See LICENSE for details.
+Copyright (c) 2015 Russ Smith. See LICENSE for details.
