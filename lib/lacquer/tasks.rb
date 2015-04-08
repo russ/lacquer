@@ -35,6 +35,11 @@ namespace :lacquer do
       varnishd.reload
     end
 
+    desc "Purge a urls from Varnish"
+    task :purge => :environment do
+      Lacquer::Varnish.new.purge(ENV['PURGE'].to_s)
+    end
+
     desc "Purge ALL urls from Varnish"
     task :global_purge => :environment do
       Lacquer::Varnish.new.purge('.*')
