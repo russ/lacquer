@@ -9,7 +9,7 @@ namespace :lacquer do
     desc "#{name} varnish"
     task name.to_sym do
       on roles(fetch(:lacquer_roles)) do
-        within current_path do
+        within current_release do
           with rails_env: fetch(:rails_env) do
             execute :bundle, "exec rake", "lacquer:varnishd:#{name}"
           end
