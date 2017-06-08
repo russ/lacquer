@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 module Lacquer
   class Varnishd
     attr_accessor :listen, :telnet, :sbin_path, :bin_path, :storage, :working_dir, :user, :backend, :params, :use_sudo, :pid_path
@@ -35,9 +37,13 @@ module Lacquer
 
     def generate_vcl
       if erb_vcl_script_filename.exist?
-        log "#{erb_vcl_script_filename} found rendering to #{vcl_script_filename}"
-        File.open(vcl_script_filename, "w") do |vcl|
-          vcl.write(render_vcl)
+        if config_changed?
+          log "#{erb_vcl_script_filename} found rendering to #{vcl_script_filename}"
+          File.open(vcl_script_filename, "w") do |vcl|
+            vcl.write(render_vcl)
+          end
+        else
+          log "#{erb_vcl_script_filename} has not changed"
         end
       end
     end
@@ -76,6 +82,12 @@ module Lacquer
 
     def running?
       !!pid && !!execute("ps p #{pid}").include?(pid.to_s) # works with sudo
+    end
+
+    def config_changed?
+      existing_hash = Digest::MD5.hexdigest(File.read(vcl_script_filename))
+      new_hash = Digest::MD5.hexdigest(render_vcl)
+      new_hash != existing_hash
     end
 
     def args

@@ -22,11 +22,13 @@ namespace :lacquer do
     desc "Restart varnishd daemon using Lacquer's settings"
     task :restart => :environment do
       varnishd = Lacquer::Varnishd.new
-      if varnishd.running?
-        varnishd.stop
-        sleep(1)
+      if varnishd.config_changed?
+        if varnishd.running?
+          varnishd.stop
+          sleep(1)
+        end
+        varnishd.start
       end
-      varnishd.start
     end
 
     desc "Reload VCL configuration through varnishadm with Lacquer's settings"
