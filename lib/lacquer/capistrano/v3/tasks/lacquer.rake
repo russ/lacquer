@@ -5,7 +5,7 @@ namespace :load do
 end
 
 namespace :lacquer do
-  %w( start stop restart purge global_purge status ).each do |name|
+  %w( start stop restart purge global_purge status reload ).each do |name|
     desc "#{name} varnish"
     task name.to_sym do
       on roles(fetch(:lacquer_roles)) do

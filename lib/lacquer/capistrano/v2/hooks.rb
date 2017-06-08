@@ -10,7 +10,7 @@ Capistrano::Configuration.instance(:must_exit).load do
   after "deploy:update", "lacquer:restart"
 
   namespace :lacquer do
-    %w( start stop restart global_purge status ).each do |name|
+    %w( start stop restart global_purge status reload ).each do |name|
       desc "#{name} varnish"
       task name.to_sym, :roles => lacquer_roles do
         next if find_servers_for_task(current_task).empty?
